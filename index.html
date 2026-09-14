@@ -32,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background-color: var(--bg-sidebar);
@@ -50,89 +49,31 @@
             margin-bottom: 40px;
         }
 
-        .brand i {
-            font-size: 24px;
-            color: var(--primary);
-        }
+        .brand i { font-size: 24px; color: var(--primary); }
+        .brand-title { font-size: 1.1rem; font-weight: 700; }
+        .brand-subtitle { font-size: 0.75rem; color: var(--text-muted); }
 
-        .brand-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .brand-subtitle {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .nav-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 0.9rem;
         }
-
-        .nav-item.active {
-            background-color: var(--primary);
-            color: #FFF;
-            font-weight: 600;
-        }
+        .nav-item.active { background-color: var(--primary); color: #FFF; font-weight: 600; }
 
         .sidebar-footer {
-            background-color: #151824;
-            padding: 12px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
+            background-color: #151824; padding: 12px; border-radius: 10px;
+            display: flex; align-items: center; gap: 10px; font-size: 0.8rem;
         }
+        .status-dot { width: 8px; height: 8px; background-color: #10B981; border-radius: 50%; }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #10B981;
-            border-radius: 50%;
-        }
-
-        /* Content Area */
-        .main-content {
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-        }
+        .main-content { flex: 1; padding: 32px; overflow-y: auto; }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
+            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
         }
+        .header h1 { font-size: 1.6rem; font-weight: 700; }
+        .header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
 
-        .header h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .header p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        /* Grid System */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -149,58 +90,24 @@
             justify-content: space-between;
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+        .card-full { grid-column: span 3; }
 
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-            color: #D1D5DB;
-        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .card-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #D1D5DB; }
 
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         .badge-normal { background-color: var(--badge-green); color: var(--badge-green-text); }
         .badge-warning { background-color: var(--badge-orange); color: var(--badge-orange-text); }
 
-        .card-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
+        .card-value { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+        .card-value span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
 
-        .card-value span {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 140px;
-            width: 100%;
-        }
+        .chart-container { position: relative; height: 160px; width: 100%; }
 
         #loading {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-main); display: flex; justify-content: center;
+            align-items: center; font-size: 1.2rem; z-index: 1000;
         }
     </style>
 </head>
@@ -241,11 +148,12 @@
         </div>
 
         <div class="dashboard-grid">
+            <!-- Ligne 1 -->
             <!-- Saturation SpO2 -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
-                    <span class="badge badge-normal" id="badgeSpo2">Normale</span>
+                    <span class="badge badge-normal">Normale</span>
                 </div>
                 <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
                 <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
@@ -255,7 +163,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-solid fa-heart" style="color:#A855F7;"></i> Pouls</div>
-                    <span class="badge badge-normal" id="badgePulse">Normale</span>
+                    <span class="badge badge-normal">Normale</span>
                 </div>
                 <div class="card-value"><span id="valPulse">--</span> <span>bpm</span></div>
                 <div class="chart-container"><canvas id="chartPulse"></canvas></div>
@@ -265,27 +173,28 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Artérielle</div>
-                    <span class="badge badge-normal" id="badgeTension">Normale</span>
+                    <span class="badge badge-normal">Normale</span>
                 </div>
                 <div class="card-value"><span id="valTension">-- / --</span> <span>mmHg</span></div>
                 <div class="chart-container"><canvas id="chartTension"></canvas></div>
             </div>
 
-            <!-- Température -->
+            <!-- Ligne 2 -->
+            <!-- Diurèse / Urine -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-temperature-half" style="color:#F59E0B;"></i> Température</div>
-                    <span class="badge badge-normal" id="badgeTemp">Normale</span>
+                    <div class="card-title"><i class="fa-solid fa-glass-water" style="color:#60A5FA;"></i> Diurèse / Urine</div>
+                    <span class="badge badge-normal">Dans la norme</span>
                 </div>
-                <div class="card-value"><span id="valTemp">--</span> <span>°C</span></div>
-                <div class="chart-container"><canvas id="chartTemp"></canvas></div>
+                <div class="card-value"><span id="valUrine">--</span> <span>ml / jour</span></div>
+                <div class="chart-container"><canvas id="chartUrine"></canvas></div>
             </div>
 
             <!-- Poids -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#818CF8;"></i> Poids</div></div>
-                    <span class="badge badge-normal" id="badgePoids">Stable</span>
+                    <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#818CF8;"></i> Poids</div>
+                    <span class="badge badge-normal">Stable</span>
                 </div>
                 <div class="card-value"><span id="valPoids">--</span> <span>kg</span></div>
                 <div class="chart-container"><canvas id="chartPoids"></canvas></div>
@@ -295,10 +204,21 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-solid fa-bolt" style="color:#FB923C;"></i> Douleur (0-10)</div>
-                    <span class="badge badge-warning" id="badgeDouleur">Modérée</span>
+                    <span class="badge badge-warning">Modérée</span>
                 </div>
                 <div class="card-value"><span id="valDouleur">--</span> <span>/ 10</span></div>
                 <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
+            </div>
+
+            <!-- Ligne 3 (Large) -->
+            <!-- Fréquence Respiratoire -->
+            <div class="card card-full">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
+                    <span class="badge badge-normal">Normale</span>
+                </div>
+                <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
+                <div class="chart-container"><canvas id="chartResp"></canvas></div>
             </div>
         </div>
     </div>
@@ -306,33 +226,35 @@
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
 
-        Chart.defaults.color = '#64748B';
+        Chart.defaults.color = '#727A8E';
         Chart.defaults.borderColor = '#1E2435';
 
-        function buildLineChart(id, labels, data, color, minY, maxY, targetMin, targetMax) {
-            const ctx = document.getElementById(id).getContext('2d');
-            const datasets = [{
-                data: data,
-                borderColor: color,
-                borderWidth: 2,
-                tension: 0.3,
-                pointRadius: 3,
-                pointBackgroundColor: color,
-                fill: false
-            }];
-
-            const plugins = {};
-            
-            return new Chart(ctx, {
+        function createLineChart(id, labels, data, color, minY, maxY, stepSize) {
+            return new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'line',
-                data: { labels: labels, datasets: datasets },
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 3,
+                        pointBackgroundColor: color,
+                        fill: false
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 10 } } },
-                        y: { min: minY, max: maxY, ticks: { font: { size: 10 } } }
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: {
+                            min: minY,
+                            max: maxY,
+                            ticks: { stepSize: stepSize, font: { size: 10 } }
+                        }
                     }
                 }
             });
@@ -346,18 +268,19 @@
                 document.getElementById('loading').style.display = 'none';
                 const rows = results.data;
 
-                // Extraction des labels (heure ou date courte)
+                // Formatage propre des dates pour l'axe X
                 const labels = rows.map(r => {
                     const d = r.DATE || '';
-                    return d.includes(' ') ? d.split(' ')[1].substring(0, 5) : d;
+                    if (!d) return '';
+                    return d.split(' ')[0]; // Affiche la date jour/mois
                 });
 
-                // Extraction des valeurs
                 const spo2 = rows.map(r => parseFloat(r.Oxygène) || null);
                 const pulse = rows.map(r => parseFloat(r.Bpm) || null);
-                const temp = rows.map(r => parseFloat(r.Température) || null);
                 const poids = rows.map(r => parseFloat(r.Poids) || null);
+                const urine = rows.map(r => parseFloat(r.Urine) || null);
                 const douleur = rows.map(r => parseFloat(r.Douleur) || 0);
+                const resp = rows.map(r => parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null);
 
                 const sys = [], dia = [];
                 rows.forEach(r => {
@@ -370,47 +293,25 @@
                     }
                 });
 
-                // Mise à jour des valeurs actuelles (dernière entrée non nulle)
                 const last = arr => [...arr].reverse().find(v => v !== null && !isNaN(v)) || '--';
+
                 document.getElementById('valSpo2').innerText = last(spo2);
                 document.getElementById('valPulse').innerText = last(pulse);
-                document.getElementById('valTemp').innerText = last(temp);
                 document.getElementById('valPoids').innerText = last(poids);
+                document.getElementById('valUrine').innerText = last(urine);
                 document.getElementById('valDouleur').innerText = last(douleur);
-                
-                const lastSys = last(sys);
-                const lastDia = last(dia);
+                document.getElementById('valResp').innerText = last(resp);
+
+                const lastSys = last(sys), lastDia = last(dia);
                 document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
 
-                // Initialisation des graphiques avec échelles forcées (min / max adaptables)
-                buildLineChart('chartSpo2', labels, spo2, '#38BDF8', 85, 100);
-                buildLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140);
-                buildLineChart('chartTemp', labels, temp, '#F59E0B', 35, 41);
-                buildLineChart('chartPoids', labels, poids, '#818CF8', 50, 100);
+                // 1. SpO2 (80 à 100%, graduation de 5 en 5)
+                createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
 
-                // Graphique Douleur (Histogramme)
-                new Chart(document.getElementById('chartDouleur').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: douleur,
-                            backgroundColor: '#FB923C',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false } },
-                            y: { min: 0, max: 10 }
-                        }
-                    }
-                });
+                // 2. Pouls (40 à 140 bpm)
+                createLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140, 20);
 
-                // Graphique Tension (Double courbe Systolique / Diastolique)
+                // 3. Tension (40 à 180 mmHg, Systolique & Diastolique)
                 new Chart(document.getElementById('chartTension').getContext('2d'), {
                     type: 'line',
                     data: {
@@ -426,10 +327,52 @@
                         plugins: { legend: { display: false } },
                         scales: {
                             x: { grid: { display: false } },
-                            y: { min: 40, max: 180 }
+                            y: { min: 40, max: 180, ticks: { stepSize: 20 } }
                         }
                     }
                 });
+
+                // 4. Urine (Bâtons, 0 à 6000 ml, gradué de 1000 en 1000)
+                new Chart(document.getElementById('chartUrine').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: urine, backgroundColor: '#60A5FA', borderRadius: 4 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { min: 0, max: 6000, ticks: { stepSize: 1000 } }
+                        }
+                    }
+                });
+
+                // 5. Poids (Adapté grand-mère: 90 à 150 kg, gradué de 10 en 10)
+                createLineChart('chartPoids', labels, poids, '#818CF8', 90, 150, 10);
+
+                // 6. Douleur (Bâtons, 0 à 10, gradué de 1 en 1 avec petites barres)
+                new Chart(document.getElementById('chartDouleur').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: douleur, backgroundColor: '#FB923C', borderRadius: 4 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { min: 0, max: 10, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+
+                // 7. Fréquence Respiratoire (0 à 30 br/min)
+                createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
             }
         });
     </script>
