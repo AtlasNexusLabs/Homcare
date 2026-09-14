@@ -169,14 +169,14 @@
         </div>
 
         <div class="dashboard-grid">
-            <!-- Saturation SpO2 -->
+            <!-- Fréquence Respiratoire -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
+                    <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
                     <span class="badge badge-normal">Normale</span>
                 </div>
-                <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
-                <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
+                <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
+                <div class="chart-container"><canvas id="chartResp"></canvas></div>
             </div>
 
             <!-- Pouls -->
@@ -189,7 +189,7 @@
                 <div class="chart-container"><canvas id="chartPulse"></canvas></div>
             </div>
 
-            <!-- Tension Arterielle -->
+            <!-- Tension Artérielle -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Artérielle</div>
@@ -229,14 +229,14 @@
                 <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
             </div>
 
-            <!-- Fréquence Respiratoire -->
+            <!-- Saturation SpO2 (Card pleine largeur) -->
             <div class="card card-full">
                 <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
+                    <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
                     <span class="badge badge-normal">Normale</span>
                 </div>
-                <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
-                <div class="chart-container"><canvas id="chartResp"></canvas></div>
+                <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
+                <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
             </div>
         </div>
     </div>
@@ -294,10 +294,15 @@
                 document.getElementById('loading').style.display = 'none';
                 const rows = results.data;
 
+                // Formatage propre des labels de l'axe X (Heure si présent, sinon Date courte)
                 const labels = rows.map(r => {
-                    const d = r.DATE || '';
+                    const d = (r.DATE || '').trim();
                     if (!d) return '';
-                    return d.split(' ')[0];
+                    if (d.includes(' ')) {
+                        const parts = d.split(' ');
+                        return parts[1].substring(0, 5); // Affiche HH:mm si heure incluse
+                    }
+                    return d;
                 });
 
                 const spo2 = rows.map(r => parseFloat(r.Oxygène) || null);
@@ -330,9 +335,13 @@
                 const lastSys = last(sys), lastDia = last(dia);
                 document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
 
-                createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
+                // Graphique Fréquence Respiratoire (Haut Gauche)
+                createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
+
+                // Graphique Pouls
                 createLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140, 20);
 
+                // Graphique Tension
                 new Chart(document.getElementById('chartTension').getContext('2d'), {
                     type: 'line',
                     data: {
@@ -353,6 +362,7 @@
                     }
                 });
 
+                // Graphique Urine
                 new Chart(document.getElementById('chartUrine').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -370,8 +380,10 @@
                     }
                 });
 
+                // Graphique Poids
                 createLineChart('chartPoids', labels, poids, '#818CF8', 90, 150, 10);
 
+                // Graphique Douleur
                 new Chart(document.getElementById('chartDouleur').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -389,7 +401,8 @@
                     }
                 });
 
-                createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
+                // Graphique Saturation SpO2 (Bas pleine largeur)
+                createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
             }
         });
     </script>
