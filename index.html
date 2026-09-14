@@ -1,380 +1,425 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeCare — Medical Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-main: #0B0E17;
-            --bg-card: #151A28;
-            --bg-sidebar: #111422;
-            --primary: #5865F2;
-            --text-main: #FFFFFF;
-            --text-muted: #727A8E;
-            --border: #1E2435;
-            --badge-green: #1E3A34;
-            --badge-green-text: #34D399;
-            --badge-orange: #3D2818;
-            --badge-orange-text: #FB923C;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        display: flex;
+        min-height: 100vh;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-        }
+    /* Sidebar */
+    .sidebar {
+        width: 240px;
+        background-color: var(--bg-sidebar);
+        border-right: 1px solid var(--border);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
-        .sidebar {
-            width: 240px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 40px;
+    }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
+    .brand i { font-size: 24px; color: var(--primary); }
+    .brand-title { font-size: 1.1rem; font-weight: 700; }
+    .brand-subtitle { font-size: 0.75rem; color: var(--text-muted); }
 
-        .brand i { font-size: 24px; color: var(--primary); }
-        .brand-title { font-size: 1.1rem; font-weight: 700; }
-        .brand-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .nav-item {
+        display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+        color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 0.9rem;
+    }
+    .nav-item.active { background-color: var(--primary); color: #FFF; font-weight: 600; }
 
-        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 0.9rem;
-        }
-        .nav-item.active { background-color: var(--primary); color: #FFF; font-weight: 600; }
+    .sidebar-footer {
+        background-color: #151824; padding: 12px; border-radius: 10px;
+        display: flex; align-items: center; gap: 10px; font-size: 0.8rem;
+    }
+    .status-dot { width: 8px; height: 8px; background-color: #10B981; border-radius: 50%; }
 
-        .sidebar-footer {
-            background-color: #151824; padding: 12px; border-radius: 10px;
-            display: flex; align-items: center; gap: 10px; font-size: 0.8rem;
-        }
-        .status-dot { width: 8px; height: 8px; background-color: #10B981; border-radius: 50%; }
+    /* Main Content */
+    .main-content { flex: 1; padding: 32px; overflow-y: auto; }
 
-        .main-content { flex: 1; padding: 32px; overflow-y: auto; }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; }
+    .header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
 
-        .header {
-            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
-        }
-        .header h1 { font-size: 1.6rem; font-weight: 700; }
-        .header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
+    .header-icon {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
 
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+    .date-time-block {
+        text-align: right;
+    }
 
-        .card-full { grid-column: span 3; }
+    .date-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: capitalize;
+    }
 
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .card-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #D1D5DB; }
+    .time-text {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
 
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .badge-normal { background-color: var(--badge-green); color: var(--badge-green-text); }
-        .badge-warning { background-color: var(--badge-orange); color: var(--badge-orange-text); }
+    .profile-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+    }
 
-        .card-value { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
-        .card-value span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+    /* Grid System */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
 
-        .chart-container { position: relative; height: 160px; width: 100%; }
+    .card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
-        #loading {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-main); display: flex; justify-content: center;
-            align-items: center; font-size: 1.2rem; z-index: 1000;
-        }
-    </style>
-</head>
-<body>
+    .card-full { grid-column: span 3; }
 
-    <div id="loading">Chargement des données en cours...</div>
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .card-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #D1D5DB; }
 
-    <div class="sidebar">
+    .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .badge-normal { background-color: var(--badge-green); color: var(--badge-green-text); }
+    .badge-warning { background-color: var(--badge-orange); color: var(--badge-orange-text); }
+
+    .card-value { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+    .card-value span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+
+    .chart-container { position: relative; height: 160px; width: 100%; }
+
+    #loading {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--bg-main); display: flex; justify-content: center;
+        align-items: center; font-size: 1.2rem; z-index: 1000;
+    }
+</style>
+
+
+<div id="loading">Chargement des données en cours...</div>
+
+<div class="sidebar">
+    <div>
+        <div class="brand">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <div>
+                <div class="brand-title">HomeCare</div>
+                <div class="brand-subtitle">Medical Dashboard</div>
+            </div>
+        </div>
+        <ul class="nav-list">
+            <li><a href="#" class="nav-item active"><i class="fa-solid fa-wave-square"></i> Suivi Médical</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-box"></i> Stock</a></li>
+            <li><a href="#" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Inventaire</a></li>
+        </ul>
+    </div>
+    <div class="sidebar-footer">
+        <div class="status-dot"></div>
         <div>
-            <div class="brand">
-                <i class="fa-solid fa-heart-pulse"></i>
-                <div>
-                    <div class="brand-title">HomeCare</div>
-                    <div class="brand-subtitle">Medical Dashboard</div>
-                </div>
-            </div>
-            <ul class="nav-list">
-                <li><a href="#" class="nav-item active"><i class="fa-solid fa-wave-square"></i> Suivi Médical</a></li>
-                <li><a href="#" class="nav-item"><i class="fa-solid fa-box"></i> Stock</a></li>
-                <li><a href="#" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Inventaire</a></li>
-            </ul>
+            <div style="font-weight: 600;">À domicile</div>
+            <div style="color: var(--text-muted); font-size: 0.7rem;">Suivi en temps réel</div>
         </div>
-        <div class="sidebar-footer">
-            <div class="status-dot"></div>
-            <div>
-                <div style="font-weight: 600;">À domicile</div>
-                <div style="color: var(--text-muted); font-size: 0.7rem;">Suivi en temps réel</div>
+    </div>
+</div>
+
+<div class="main-content">
+    <!-- En-tête avec titre et widget Date / Heure -->
+    <div class="header">
+        <div>
+            <h1>Suivi Médical</h1>
+            <p>Vos données de santé en un coup d'œil</p>
+        </div>
+        <div class="header-right">
+            <i class="fa-regular fa-bell header-icon"></i>
+            <div class="date-time-block">
+                <div id="currentDate" class="date-text">--. -- --- ----</div>
+                <div id="currentTime" class="time-text">--:--</div>
+            </div>
+            <div class="profile-avatar">
+                <i class="fa-regular fa-user"></i>
             </div>
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <div>
-                <h1>Suivi Médical</h1>
-                <p>Vos données de santé en un coup d'œil</p>
+    <div class="dashboard-grid">
+        <!-- Ligne 1 -->
+        <!-- Saturation SpO2 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
+                <span class="badge badge-normal">Normale</span>
             </div>
+            <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
+            <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
         </div>
 
-        <div class="dashboard-grid">
-            <!-- Ligne 1 -->
-            <!-- Saturation SpO2 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
-                    <span class="badge badge-normal">Normale</span>
-                </div>
-                <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
-                <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
+        <!-- Pouls -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-heart" style="color:#A855F7;"></i> Pouls</div>
+                <span class="badge badge-normal">Normale</span>
             </div>
+            <div class="card-value"><span id="valPulse">--</span> <span>bpm</span></div>
+            <div class="chart-container"><canvas id="chartPulse"></canvas></div>
+        </div>
 
-            <!-- Pouls -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-heart" style="color:#A855F7;"></i> Pouls</div>
-                    <span class="badge badge-normal">Normale</span>
-                </div>
-                <div class="card-value"><span id="valPulse">--</span> <span>bpm</span></div>
-                <div class="chart-container"><canvas id="chartPulse"></canvas></div>
+        <!-- Tension Arterielle -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Artérielle</div>
+                <span class="badge badge-normal">Normale</span>
             </div>
+            <div class="card-value"><span id="valTension">-- / --</span> <span>mmHg</span></div>
+            <div class="chart-container"><canvas id="chartTension"></canvas></div>
+        </div>
 
-            <!-- Tension Arterielle -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Artérielle</div>
-                    <span class="badge badge-normal">Normale</span>
-                </div>
-                <div class="card-value"><span id="valTension">-- / --</span> <span>mmHg</span></div>
-                <div class="chart-container"><canvas id="chartTension"></canvas></div>
+        <!-- Ligne 2 -->
+        <!-- Diurèse / Urine -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-glass-water" style="color:#60A5FA;"></i> Diurèse / Urine</div>
+                <span class="badge badge-normal">Dans la norme</span>
             </div>
+            <div class="card-value"><span id="valUrine">--</span> <span>ml / jour</span></div>
+            <div class="chart-container"><canvas id="chartUrine"></canvas></div>
+        </div>
 
-            <!-- Ligne 2 -->
-            <!-- Diurèse / Urine -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-glass-water" style="color:#60A5FA;"></i> Diurèse / Urine</div>
-                    <span class="badge badge-normal">Dans la norme</span>
-                </div>
-                <div class="card-value"><span id="valUrine">--</span> <span>ml / jour</span></div>
-                <div class="chart-container"><canvas id="chartUrine"></canvas></div>
+        <!-- Poids -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#818CF8;"></i> Poids</div>
+                <span class="badge badge-normal">Stable</span>
             </div>
+            <div class="card-value"><span id="valPoids">--</span> <span>kg</span></div>
+            <div class="chart-container"><canvas id="chartPoids"></canvas></div>
+        </div>
 
-            <!-- Poids -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#818CF8;"></i> Poids</div>
-                    <span class="badge badge-normal">Stable</span>
-                </div>
-                <div class="card-value"><span id="valPoids">--</span> <span>kg</span></div>
-                <div class="chart-container"><canvas id="chartPoids"></canvas></div>
+        <!-- Douleur -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-bolt" style="color:#FB923C;"></i> Douleur (0-10)</div>
+                <span class="badge badge-warning">Modérée</span>
             </div>
+            <div class="card-value"><span id="valDouleur">--</span> <span>/ 10</span></div>
+            <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
+        </div>
 
-            <!-- Douleur -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-bolt" style="color:#FB923C;"></i> Douleur (0-10)</div>
-                    <span class="badge badge-warning">Modérée</span>
-                </div>
-                <div class="card-value"><span id="valDouleur">--</span> <span>/ 10</span></div>
-                <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
+        <!-- Ligne 3 (Large) -->
+        <!-- Fréquence Respiratoire -->
+        <div class="card card-full">
+            <div class="card-header">
+                <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
+                <span class="badge badge-normal">Normale</span>
             </div>
-
-            <!-- Ligne 3 (Large) -->
-            <!-- Fréquence Respiratoire -->
-            <div class="card card-full">
-                <div class="card-header">
-                    <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
-                    <span class="badge badge-normal">Normale</span>
-                </div>
-                <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
-                <div class="chart-container"><canvas id="chartResp"></canvas></div>
-            </div>
+            <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
+            <div class="chart-container"><canvas id="chartResp"></canvas></div>
         </div>
     </div>
+</div>
 
-    <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
+<script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
 
-        Chart.defaults.color = '#727A8E';
-        Chart.defaults.borderColor = '#1E2435';
+    Chart.defaults.color = '#727A8E';
+    Chart.defaults.borderColor = '#1E2435';
 
-        function createLineChart(id, labels, data, color, minY, maxY, stepSize) {
-            return new Chart(document.getElementById(id).getContext('2d'), {
+    // Horloge en direct
+    function updateLiveDateTime() {
+        const now = new Date();
+        const optionsDate = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+        let dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+        dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        
+        const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('currentDate').innerText = dateStr;
+        document.getElementById('currentTime').innerText = timeStr;
+    }
+    updateLiveDateTime();
+    setInterval(updateLiveDateTime, 1000);
+
+    function createLineChart(id, labels, data, color, minY, maxY, stepSize) {
+        return new Chart(document.getElementById(id).getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: color,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: {
+                        min: minY,
+                        max: maxY,
+                        ticks: { stepSize: stepSize, font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            document.getElementById('loading').style.display = 'none';
+            const rows = results.data;
+
+            // Extraction des dates pour l'axe X
+            const labels = rows.map(r => {
+                const d = r.DATE || '';
+                if (!d) return '';
+                return d.split(' ')[0];
+            });
+
+            const spo2 = rows.map(r => parseFloat(r.Oxygène) || null);
+            const pulse = rows.map(r => parseFloat(r.Bpm) || null);
+            const poids = rows.map(r => parseFloat(r.Poids) || null);
+            const urine = rows.map(r => parseFloat(r.Urine) || null);
+            const douleur = rows.map(r => parseFloat(r.Douleur) || 0);
+            const resp = rows.map(r => parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null);
+
+            const sys = [], dia = [];
+            rows.forEach(r => {
+                if (r.Tension && r.Tension.includes('/')) {
+                    const p = r.Tension.split('/');
+                    sys.push(parseFloat(p[0]));
+                    dia.push(parseFloat(p[1]));
+                } else {
+                    sys.push(null); dia.push(null);
+                }
+            });
+
+            const last = arr => [...arr].reverse().find(v => v !== null && !isNaN(v)) || '--';
+
+            document.getElementById('valSpo2').innerText = last(spo2);
+            document.getElementById('valPulse').innerText = last(pulse);
+            document.getElementById('valPoids').innerText = last(poids);
+            document.getElementById('valUrine').innerText = last(urine);
+            document.getElementById('valDouleur').innerText = last(douleur);
+            document.getElementById('valResp').innerText = last(resp);
+
+            const lastSys = last(sys), lastDia = last(dia);
+            document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
+
+            // 1. SpO2 (80 à 100%, graduation de 5 en 5)
+            createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
+
+            // 2. Pouls (40 à 140 bpm)
+            createLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140, 20);
+
+            // 3. Tension (40 à 180 mmHg)
+            new Chart(document.getElementById('chartTension').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: color,
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointBackgroundColor: color,
-                        fill: false
-                    }]
+                    datasets: [
+                        { data: sys, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 3 },
+                        { data: dia, borderColor: '#818CF8', borderWidth: 2, tension: 0.3, pointRadius: 3 }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-                        y: {
-                            min: minY,
-                            max: maxY,
-                            ticks: { stepSize: stepSize, font: { size: 10 } }
-                        }
+                        x: { grid: { display: false } },
+                        y: { min: 40, max: 180, ticks: { stepSize: 20 } }
                     }
                 }
             });
+
+            // 4. Urine (Bâtons, 0 à 6000 ml)
+            new Chart(document.getElementById('chartUrine').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: urine, backgroundColor: '#60A5FA', borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { min: 0, max: 6000, ticks: { stepSize: 1000 } }
+                    }
+                }
+            });
+
+            // 5. Poids (90 à 150 kg)
+            createLineChart('chartPoids', labels, poids, '#818CF8', 90, 150, 10);
+
+            // 6. Douleur (Bâtons, 0 à 10)
+            new Chart(document.getElementById('chartDouleur').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: douleur, backgroundColor: '#FB923C', borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { min: 0, max: 10, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // 7. Fréquence Respiratoire (0 à 30 br/min)
+            createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
         }
-
-        Papa.parse(CSV_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                document.getElementById('loading').style.display = 'none';
-                const rows = results.data;
-
-                // Formatage propre des dates pour l'axe X
-                const labels = rows.map(r => {
-                    const d = r.DATE || '';
-                    if (!d) return '';
-                    return d.split(' ')[0]; // Affiche la date jour/mois
-                });
-
-                const spo2 = rows.map(r => parseFloat(r.Oxygène) || null);
-                const pulse = rows.map(r => parseFloat(r.Bpm) || null);
-                const poids = rows.map(r => parseFloat(r.Poids) || null);
-                const urine = rows.map(r => parseFloat(r.Urine) || null);
-                const douleur = rows.map(r => parseFloat(r.Douleur) || 0);
-                const resp = rows.map(r => parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null);
-
-                const sys = [], dia = [];
-                rows.forEach(r => {
-                    if (r.Tension && r.Tension.includes('/')) {
-                        const p = r.Tension.split('/');
-                        sys.push(parseFloat(p[0]));
-                        dia.push(parseFloat(p[1]));
-                    } else {
-                        sys.push(null); dia.push(null);
-                    }
-                });
-
-                const last = arr => [...arr].reverse().find(v => v !== null && !isNaN(v)) || '--';
-
-                document.getElementById('valSpo2').innerText = last(spo2);
-                document.getElementById('valPulse').innerText = last(pulse);
-                document.getElementById('valPoids').innerText = last(poids);
-                document.getElementById('valUrine').innerText = last(urine);
-                document.getElementById('valDouleur').innerText = last(douleur);
-                document.getElementById('valResp').innerText = last(resp);
-
-                const lastSys = last(sys), lastDia = last(dia);
-                document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
-
-                // 1. SpO2 (80 à 100%, graduation de 5 en 5)
-                createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
-
-                // 2. Pouls (40 à 140 bpm)
-                createLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140, 20);
-
-                // 3. Tension (40 à 180 mmHg, Systolique & Diastolique)
-                new Chart(document.getElementById('chartTension').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { data: sys, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 3 },
-                            { data: dia, borderColor: '#818CF8', borderWidth: 2, tension: 0.3, pointRadius: 3 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false } },
-                            y: { min: 40, max: 180, ticks: { stepSize: 20 } }
-                        }
-                    }
-                });
-
-                // 4. Urine (Bâtons, 0 à 6000 ml, gradué de 1000 en 1000)
-                new Chart(document.getElementById('chartUrine').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{ data: urine, backgroundColor: '#60A5FA', borderRadius: 4 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false } },
-                            y: { min: 0, max: 6000, ticks: { stepSize: 1000 } }
-                        }
-                    }
-                });
-
-                // 5. Poids (Adapté grand-mère: 90 à 150 kg, gradué de 10 en 10)
-                createLineChart('chartPoids', labels, poids, '#818CF8', 90, 150, 10);
-
-                // 6. Douleur (Bâtons, 0 à 10, gradué de 1 en 1 avec petites barres)
-                new Chart(document.getElementById('chartDouleur').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{ data: douleur, backgroundColor: '#FB923C', borderRadius: 4 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false } },
-                            y: { min: 0, max: 10, ticks: { stepSize: 1 } }
-                        }
-                    }
-                });
-
-                // 7. Fréquence Respiratoire (0 à 30 br/min)
-                createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
-            }
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
