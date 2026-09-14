@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homecare Dashboard — Suivi Médical</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --card-bg: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --accent: #6366F1;
+            --border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            padding-right: 20px;
+            border-right: 1px solid var(--border);
+        }
+        .sidebar h1 { font-size: 1.2rem; color: var(--accent); margin-bottom: 30px; }
+        .nav-item {
+            display: block;
+            padding: 10px;
+            color: var(--text-sub);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        .nav-item.active { background-color: rgba(99, 102, 241, 0.1); color: var(--accent); font-weight: bold; }
+
+        .main-content {
+            flex: 1;
+            padding-left: 30px;
+        }
+
+        .header { margin-bottom: 25px; }
+        .header h2 { margin: 0; font-size: 1.5rem; }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            height: 260px;
+        }
+        .chart-card h3 { margin-top: 0; font-size: 0.95rem; color: var(--text-main); }
+
+        .data-table-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-sub);
+        }
+
+        th { color: var(--text-main); }
+
+        #loading {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 1.2rem; color: var(--text-sub);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">Chargement des données...</div>
+
+    <div class="sidebar">
+        <h1>HOMECARE</h1>
+        <a href="#" class="nav-item active">Suivi Médical</a>
+        <a href="#" class="nav-item">Stock</a>
+        <a href="#" class="nav-item">Inventaire</a>
+    </div>
+
+    <div class="main-content" id="dashboard" style="display:none;">
+        <div class="header">
+            <h2>Suivi Médical</h2>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Tension Artérielle</h3>
+                <canvas id="chartTension"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Pouls (BPM)</h3>
+                <canvas id="chartPulse"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Oxygène (%)</h3>
+                <canvas id="chartSpo2"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Température (°C)</h3>
+                <canvas id="chartTemp"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table-container">
+            <h3>Historique complet</h3>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Tension</th>
+                        <th>BPM</th>
+                        <th>Temp</th>
+                        <th>SpO2</th>
+                        <th>Urine</th>
+                        <th>Selles</th>
+                        <th>Douleur</th>
+                        <th>Poids</th>
+                        <th>Obs.</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
+
+        Chart.defaults.color = '#94A3B8';
+        Chart.defaults.borderColor = '#334155';
+
+        function createLineChart(canvasId, label, labels, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '1A',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: color
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        Papa.parse(GOOGLE_SHEET_CSV_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                const rawData = results.data;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+
+                const labels = rawData.map(row => row.DATE);
+                const pulseData = rawData.map(row => parseFloat(row.Bpm) || null);
+                const spo2Data = rawData.map(row => parseFloat(row.Oxygène) || null);
+                const tempData = rawData.map(row => parseFloat(row.Température) || null);
+
+                const sysData = [];
+                const diaData = [];
+                rawData.forEach(row => {
+                    const tension = row.Tension;
+                    if (tension && tension.includes('/')) {
+                        const parts = tension.split('/');
+                        sysData.push(parseFloat(parts[0]));
+                        diaData.push(parseFloat(parts[1]));
+                    } else if (tension && !isNaN(parseFloat(tension))) {
+                        sysData.push(parseFloat(tension));
+                        diaData.push(null);
+                    } else {
+                        sysData.push(null);
+                        diaData.push(null);
+                    }
+                });
+
+                // Graphiques
+                createLineChart('chartPulse', 'BPM', labels, pulseData, '#6366F1');
+                createLineChart('chartSpo2', 'Oxygène', labels, spo2Data, '#38BDF8');
+                createLineChart('chartTemp', 'Température', labels, tempData, '#F59E0B');
+
+                const ctxTension = document.getElementById('chartTension').getContext('2d');
+                new Chart(ctxTension, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Systolique', data: sysData, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 4 },
+                            { label: 'Diastolique', data: diaData, borderColor: '#8B5CF6', borderWidth: 2, tension: 0.3, pointRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top', align: 'end' } }
+                    }
+                });
+
+                // Remplissage du tableau
+                const tbody = document.querySelector('#dataTable tbody');
+                rawData.reverse().forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.DATE || ''}</td>
+                        <td>${row.Tension || ''}</td>
+                        <td>${row.Bpm || ''}</td>
+                        <td>${row.Température || ''}</td>
+                        <td>${row.Oxygène || ''}</td>
+                        <td>${row.Urine || ''}</td>
+                        <td>${row.Selles || ''}</td>
+                        <td>${row.Douleur || ''}</td>
+                        <td>${row.Poids || ''}</td>
+                        <td>${row.Observations || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
