@@ -130,15 +130,18 @@
         .view-section { display: flex; flex-direction: column; flex: 1; height: 100%; min-height: 0; }
         .hidden { display: none !important; }
 
-        /* Dashboard Grid Compact Layout */
+        /* Dashboard Grid Layout (Asymétrique origine) */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
             gap: 12px;
             flex: 1;
             min-height: 0;
         }
+
+        .col-span-2 { grid-column: span 2; }
+        .row-span-2 { grid-row: span 2; }
 
         .card {
             background-color: var(--bg-card);
@@ -168,6 +171,16 @@
         .card-value span { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
 
         .chart-container { position: relative; flex: 1; width: 100%; min-height: 0; }
+
+        /* Encart Observations */
+        .obs-list { display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem; margin-top: 8px; }
+        .obs-item { display: flex; align-items: center; gap: 8px; }
+        .obs-item i { width: 14px; text-align: center; color: var(--text-muted); }
+        .obs-item span.label { color: var(--text-muted); width: 85px; }
+        .obs-item span.val { font-weight: 600; color: var(--text-main); }
+        .obs-note { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+        .obs-note-title { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px; }
+        .obs-note-text { font-size: 0.75rem; color: #D1D5DB; line-height: 1.2; }
 
         /* Settings Page */
         .settings-grid {
@@ -309,6 +322,7 @@
         <div id="viewSuivi" class="view-section">
             <div class="dashboard-grid">
 
+                <!-- Ligne 1 -->
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -351,6 +365,7 @@
                     <div class="chart-container"><canvas id="chartTension"></canvas></div>
                 </div>
 
+                <!-- Ligne 2 -->
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -359,6 +374,7 @@
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-normal">Dans la norme</span>
+                            <div class="card-subtext">Min 1000 | Max 2500</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartUrine"></canvas></div>
@@ -372,13 +388,27 @@
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-normal">Stable</span>
-                            <div class="card-subtext">Seuil : 75 kg</div>
+                            <div class="card-subtext">Seuil de vigilance : 75 kg</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartPoids"></canvas></div>
                 </div>
 
                 <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-bolt" style="color:#F97316;"></i> Douleur (0-10)</div>
+                            <div class="card-value"><span id="valDouleur">4</span> <span>/ 10</span></div>
+                        </div>
+                        <div class="card-meta">
+                            <span class="badge badge-warning">Modérée</span>
+                        </div>
+                    </div>
+                    <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
+                </div>
+
+                <!-- Ligne 3 -->
+                <div class="card col-span-2">
                     <div class="card-header">
                         <div>
                             <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
@@ -390,6 +420,38 @@
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartResp"></canvas></div>
+                </div>
+
+                <div class="card row-span-2">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-clipboard-user" style="color:#818CF8;"></i> Observations / Infos complémentaires</div>
+                    </div>
+                    <div class="obs-list">
+                        <div class="obs-item">
+                            <i class="fa-solid fa-pills"></i>
+                            <span class="label">Médicaments</span>
+                            <span class="val">Aspirine 100mg - 1x/jour</span>
+                        </div>
+                        <div class="obs-item">
+                            <i class="fa-solid fa-utensils"></i>
+                            <span class="label">Alimentation</span>
+                            <span class="val">Normale</span>
+                        </div>
+                        <div class="obs-item">
+                            <i class="fa-solid fa-bottle-water"></i>
+                            <span class="label">Hydratation</span>
+                            <span class="val">1,5 L / jour</span>
+                        </div>
+                        <div class="obs-item">
+                            <i class="fa-solid fa-toilet"></i>
+                            <span class="label">Selles</span>
+                            <span class="val">Ras</span>
+                        </div>
+                    </div>
+                    <div class="obs-note">
+                        <div class="obs-note-title">Dernière observation :</div>
+                        <div class="obs-note-text">Bonne journée, pas de douleur particulière.</div>
+                    </div>
                 </div>
 
             </div>
@@ -611,6 +673,7 @@
                 document.getElementById('valPoids').innerText = last(poids);
                 document.getElementById('valUrine').innerText = last(urine);
                 document.getElementById('valResp').innerText = last(resp);
+                document.getElementById('valDouleur').innerText = last(douleur);
 
                 const lastSys = last(sys), lastDia = last(dia);
                 document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
@@ -659,6 +722,29 @@
                 });
 
                 createLineChart('chartPoids', labels, poids, '#818CF8', 50, 100, 10);
+
+                if (chartInstances['chartDouleur']) chartInstances['chartDouleur'].destroy();
+                chartInstances['chartDouleur'] = new Chart(document.getElementById('chartDouleur').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: douleur,
+                            backgroundColor: douleur.map(v => v >= 6 ? '#EF4444' : (v >= 4 ? '#F97316' : '#10B981')),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                            y: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 } } }
+                        }
+                    }
+                });
+
                 createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
             }
         });
