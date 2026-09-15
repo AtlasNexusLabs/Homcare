@@ -643,9 +643,7 @@
             currentPeriod = period;
             const btns = document.querySelectorAll('.period-btn');
             btns.forEach(b => b.classList.remove('active'));
-            if (evt && evt.target) {
-                evt.target.classList.add('active');
-            }
+            if (evt && evt.target) evt.target.classList.add('active');
 
             const customPicker = document.getElementById('customRangePicker');
             if (period === 'custom') {
@@ -671,6 +669,14 @@
         function parseFrenchDate(dateStr) {
             if (!dateStr) return null;
             dateStr = dateStr.trim();
+            
+            // Format ISO ou standard JS
+            if (dateStr.includes('-')) {
+                const parsed = Date.parse(dateStr);
+                return isNaN(parsed) ? null : parsed;
+            }
+
+            // Format FR DD/MM/YYYY
             const parts = dateStr.split(' ');
             const dateParts = parts[0].split('/');
             if (dateParts.length !== 3) return null;
@@ -694,15 +700,12 @@
 
         function getTimeUnit(period) {
             if (period === 'today') return 'hour';
-            if (period === '7d') return 'day';
-            if (period === '30d') return 'day';
+            if (period === '7d' || period === '30d') return 'day';
             return 'week';
         }
 
         function createTimeLineChart(id, dataPoints, color, minY, maxY, stepSize, bounds) {
             if (chartInstances[id]) chartInstances[id].destroy();
-
-            const unit = getTimeUnit(currentPeriod);
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'line',
@@ -727,12 +730,8 @@
                             min: bounds.min,
                             max: bounds.max,
                             time: {
-                                unit: unit,
-                                displayFormats: {
-                                    hour: 'HH:mm',
-                                    day: 'dd MMM',
-                                    week: 'dd MMM'
-                                }
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
                             },
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
@@ -745,8 +744,6 @@
 
         function createTimeBarChart(id, dataPoints, color, minY, maxY, stepSize, bounds, isDynamicColor = false) {
             if (chartInstances[id]) chartInstances[id].destroy();
-
-            const unit = getTimeUnit(currentPeriod);
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'bar',
@@ -767,12 +764,8 @@
                             min: bounds.min,
                             max: bounds.max,
                             time: {
-                                unit: unit,
-                                displayFormats: {
-                                    hour: 'HH:mm',
-                                    day: 'dd MMM',
-                                    week: 'dd MMM'
-                                }
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
                             },
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
@@ -787,8 +780,6 @@
             if (!rawMedicalData.length) return;
 
             const bounds = getTimeBounds(currentPeriod);
-
-            // Extraction & filtrage par timestamp
             const filteredData = rawMedicalData.filter(r => r.timestamp && r.timestamp >= bounds.min && r.timestamp <= bounds.max);
 
             const spo2Points = filteredData.filter(r => r.Oxygène !== null).map(r => ({ x: r.timestamp, y: r.Oxygène }));
@@ -797,31 +788,33 @@
             const urinePoints = filteredData.filter(r => r.Urine !== null).map(r => ({ x: r.timestamp, y: r.Urine }));
             const douleurPoints = filteredData.filter(r => r.Douleur !== null).map(r => ({ x: r.timestamp, y: r.Douleur }));
             const respPoints = filteredData.filter(r => r.Resp !== null).map(r => ({ x: r.timestamp, y: r.Resp }));
-
             const sysPoints = filteredData.filter(r => r.Sys !== null).map(r => ({ x: r.timestamp, y: r.Sys }));
             const diaPoints = filteredData.filter(r => r.Dia !== null).map(r => ({ x: r.timestamp, y: r.Dia }));
 
-            // Obtenir la dernière valeur disponible DANS la période sélectionnée
-            const getLastVal = (pts) => pts.length ? pts[pts.length - 1].y : '--';
+            // Obtenir la dernière valeur disponible dans la plage, ou la toute dernière valeur globale si vide
+            const getLastVal = (pts, key) => {
+                if (pts.length) return pts[pts.length - 1].y;
+                const globalPts = rawMedicalData.filter(r => r[key] !== null);
+                return globalPts.length ? globalPts[globalPts.length - 1][key] : '--';
+            };
 
-            document.getElementById('valSpo2').innerText = getLastVal(spo2Points);
-            document.getElementById('valPulse').innerText = getLastVal(pulsePoints);
-            document.getElementById('valPoids').innerText = getLastVal(poidsPoints);
-            document.getElementById('valUrine').innerText = getLastVal(urinePoints);
-            document.getElementById('valResp').innerText = getLastVal(respPoints);
-            document.getElementById('valDouleur').innerText = getLastVal(douleurPoints);
+            document.getElementById('valSpo2').innerText = getLastVal(spo2Points, 'Oxygène');
+            document.getElementById('valPulse').innerText = getLastVal(pulsePoints, 'Bpm');
+            document.getElementById('valPoids').innerText = getLastVal(poidsPoints, 'Poids');
+            document.getElementById('valUrine').innerText = getLastVal(urinePoints, 'Urine');
+            document.getElementById('valResp').innerText = getLastVal(respPoints, 'Resp');
+            document.getElementById('valDouleur').innerText = getLastVal(douleurPoints, 'Douleur');
 
-            const lastSys = getLastVal(sysPoints);
-            const lastDia = getLastVal(diaPoints);
+            const lastSys = getLastVal(sysPoints, 'Sys');
+            const lastDia = getLastVal(diaPoints, 'Dia');
             document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
 
-            // Chart Rendering avec Time Scale
+            // Rendu des graphiques
             createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds);
             createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds);
             createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 50, 100, 10, bounds);
             createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 30, 5, bounds);
 
-            // Chart Tension Artérielle Multi-Lignes
             if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
             chartInstances['chartTension'] = new Chart(document.getElementById('chartTension').getContext('2d'), {
                 type: 'line',
@@ -852,51 +845,41 @@
                 }
             });
 
-            // Graphiques en barres (Diurèse & Douleur)
             createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 3000, 500, bounds);
             createTimeBarChart('chartDouleur', douleurPoints, null, 0, 10, 2, bounds, true);
         }
 
-        function saveSettings() {
-            alert('Paramètres enregistrés avec succès !');
-        }
+        function saveSettings() { alert('Paramètres enregistrés !'); }
+        function resetDefaultSettings() { alert('Réinitialisé.'); }
 
-        function resetDefaultSettings() {
-            document.getElementById('minResp').value = 12; document.getElementById('maxResp').value = 20;
-            document.getElementById('minPulse').value = 50; document.getElementById('maxPulse').value = 120;
-            document.getElementById('minSys').value = 90; document.getElementById('maxSys').value = 140;
-            document.getElementById('minUrine').value = 1000; document.getElementById('maxUrine').value = 2500;
-            document.getElementById('maxPoids').value = 75;
-            document.getElementById('minSpo2').value = 90; document.getElementById('maxSpo2').value = 100;
-            alert('Valeurs réinitialisées aux seuils standards.');
-        }
-
-        // Chargement initial du CSV Google Sheets
+        // Chargement du CSV
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
-                document.getElementById('loading').style.display = 'none';
+                const loader = document.getElementById('loading');
+                if (loader) loader.style.display = 'none';
 
                 rawMedicalData = results.data.map(r => {
-                    const ts = parseFrenchDate(r.DATE);
+                    const ts = parseFrenchDate(r.DATE || r.Date || r.date);
                     let sysVal = null, diaVal = null;
 
-                    if (r.Tension && r.Tension.includes('/')) {
-                        const p = r.Tension.split('/');
+                    const tension = r.Tension || r.tension;
+                    if (tension && tension.includes('/')) {
+                        const p = tension.split('/');
                         sysVal = parseFloat(p[0]) || null;
                         diaVal = parseFloat(p[1]) || null;
                     }
 
                     return {
                         timestamp: ts,
-                        Oxygène: parseFloat(r.Oxygène) || null,
-                        Bpm: parseFloat(r.Bpm) || null,
+                        Oxygène: parseFloat(r.Oxygène || r.Oxygen || r.Spo2) || null,
+                        Bpm: parseFloat(r.Bpm || r.Pouls) || null,
                         Poids: parseFloat(r.Poids) || null,
-                        Urine: parseFloat(r.Urine) || null,
+                        Urine: parseFloat(r.Urine || r.Diurese) || null,
                         Douleur: parseFloat(r.Douleur) || null,
-                        Resp: parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null,
+                        Resp: parseFloat(r['Fréquence Respiratoire'] || r.Respiration || r.Resp) || null,
                         Sys: sysVal,
                         Dia: diaVal
                     };
@@ -904,6 +887,11 @@
                   .sort((a, b) => a.timestamp - b.timestamp);
 
                 renderDashboard();
+            },
+            error: function(err) {
+                console.error("Erreur PapaParse:", err);
+                const loader = document.getElementById('loading');
+                if (loader) loader.style.display = 'none';
             }
         });
     </script>
