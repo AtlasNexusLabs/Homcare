@@ -562,7 +562,7 @@
                     ctx.setLineDash(line.dash || [4, 4]);
                     ctx.moveTo(left, yPos);
                     ctx.lineTo(right, yPos);
-                    ctx.strokeStyle = line.color || 'rgba(255, 255, 255, 0.4)';
+                    ctx.strokeStyle = line.color || 'rgba(255, 255, 255, 0.2)';
                     ctx.lineWidth = line.width || 1;
                     ctx.stroke();
                 });
@@ -801,11 +801,17 @@
             const badge = document.getElementById(badgeId);
             const subtext = document.getElementById(subtextId);
 
+            const hasMin = min !== null && min !== undefined && !isNaN(min);
+            const hasMax = max !== null && max !== undefined && !isNaN(max);
+
             let rangeText = '';
             if (isSingleThreshold) {
-                rangeText = singleType === 'max' ? `Seuil : ${max}` : `Seuil : ${min}`;
+                if (singleType === 'max' && hasMax) rangeText = `Seuil : ${max}`;
+                else if (singleType === 'min' && hasMin) rangeText = `Seuil : ${min}`;
             } else {
-                rangeText = `Min ${min} | Max ${max}`;
+                if (hasMin && hasMax) rangeText = `Min ${min} | Max ${max}`;
+                else if (hasMin) rangeText = `Min : ${min}`;
+                else if (hasMax) rangeText = `Max : ${max}`;
             }
             if (subtext) subtext.innerText = rangeText;
 
@@ -819,10 +825,11 @@
             let isNormal = true;
 
             if (isSingleThreshold) {
-                if (singleType === 'max' && val > max) isNormal = false;
-                if (singleType === 'min' && val < min) isNormal = false;
+                if (singleType === 'max' && hasMax && val > max) isNormal = false;
+                if (singleType === 'min' && hasMin && val < min) isNormal = false;
             } else {
-                if (val < min || val > max) isNormal = false;
+                if (hasMin && val < min) isNormal = false;
+                if (hasMax && val > max) isNormal = false;
             }
 
             if (isNormal) {
@@ -909,7 +916,31 @@
             updateMetaBadge('badgeUrine', 'subtextUrine', valUrine, settings.minUrine, settings.maxUrine);
             updateMetaBadge('badgePoids', 'subtextPoids', avgPoids, null, settings.maxPoids, true, 'max');
             updateMetaBadge('badgeDouleur', 'subtextDouleur', avgDouleur, null, settings.maxDouleur, true, 'max');
-            updateMetaBadge('badgeTension', 'subtextTension', avgSys, settings.minSys, settings.maxSys);
+
+            // Mise à jour sous-texte spécifique Tension
+            let rangeTensionText = '';
+            if (settings.enableSys) {
+                rangeTensionText = `Sys ${settings.minSys}-${settings.maxSys}`;
+            }
+            document.getElementById('subtextTension').innerText = rangeTensionText;
+
+            if (avgSys === '--' || avgSys === null || isNaN(avgSys)) {
+                document.getElementById('badgeTension').className = 'badge badge-normal';
+                document.getElementById('badgeTension').innerText = 'Pas de donnée';
+            } else {
+                const valSysNum = parseFloat(avgSys);
+                let isSysNormal = true;
+                if (settings.enableSys) {
+                    if (valSysNum < settings.minSys || valSysNum > settings.maxSys) isSysNormal = false;
+                }
+                if (isSysNormal) {
+                    document.getElementById('badgeTension').className = 'badge badge-normal';
+                    document.getElementById('badgeTension').innerText = 'Normale';
+                } else {
+                    document.getElementById('badgeTension').className = 'badge badge-warning';
+                    document.getElementById('badgeTension').innerText = 'Hors norme';
+                }
+            }
 
             // Construction des lignes de seuil pour Chart.js
             const linesSpo2 = settings.enableSpo2 ? [{ value: settings.minSpo2 }, { value: settings.maxSpo2 }] : [];
@@ -939,8 +970,24 @@
                 type: 'line',
                 data: {
                     datasets: [
-                        { data: sysPoints, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 3 },
-                        { data: diaPoints, borderColor: '#818CF8', borderWidth: 2, tension: 0.3, pointRadius: 3 }
+                        { 
+                            data: sysPoints, 
+                            borderColor: '#EC4899', 
+                            backgroundColor: '#EC4899', 
+                            pointBackgroundColor: '#EC4899', 
+                            borderWidth: 2, 
+                            tension: 0.3, 
+                            pointRadius: 3 
+                        },
+                        { 
+                            data: diaPoints, 
+                            borderColor: '#818CF8', 
+                            backgroundColor: '#818CF8', 
+                            pointBackgroundColor: '#818CF8', 
+                            borderWidth: 2, 
+                            tension: 0.3, 
+                            pointRadius: 3 
+                        }
                     ]
                 },
                 options: {
