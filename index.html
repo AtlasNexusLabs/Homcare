@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeCare — Medical Dashboard</title>
-    <!-- Chart.js + Luxon Adapter -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
@@ -69,21 +68,11 @@
         .status-dot { width: 8px; height: 8px; background-color: #10B981; border-radius: 50%; }
 
         .main-content {
-            flex: 1;
-            padding: 16px 24px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            flex: 1; padding: 16px 24px; display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-shrink: 0;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
         .header h1 { font-size: 1.3rem; font-weight: 700; }
         .header p { color: var(--text-muted); font-size: 0.75rem; }
 
@@ -93,9 +82,8 @@
             padding: 4px; border-radius: 10px; border: 1px solid var(--border);
         }
         .period-btn {
-            background: none; border: none; color: var(--text-muted);
-            padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
-            border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            background: none; border: none; color: var(--text-muted); padding: 6px 12px;
+            font-size: 0.75rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;
         }
         .period-btn.active { background-color: var(--primary); color: #FFF; }
         .period-btn:hover:not(.active) { color: var(--text-main); }
@@ -121,29 +109,21 @@
         .hidden { display: none !important; }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 12px;
-            flex: 1;
-            min-height: 0;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 12px; flex: 1; min-height: 0;
         }
 
         .col-span-2 { grid-column: span 2; }
         .row-span-2 { grid-row: span 2; }
 
         .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; min-height: 0;
         }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
         .card-title { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #D1D5DB; font-weight: 600; }
+
         .card-meta { text-align: right; }
         .badge { padding: 2px 6px; border-radius: 8px; font-size: 0.65rem; font-weight: 600; display: inline-block; }
         .badge-normal { background-color: var(--badge-green); color: var(--badge-green-text); }
@@ -164,19 +144,37 @@
         .obs-note-title { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px; }
         .obs-note-text { font-size: 0.75rem; color: #D1D5DB; line-height: 1.2; }
 
-        .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; overflow-y: auto; }
-        .setting-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+        .settings-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; overflow-y: auto;
+        }
+
+        .setting-card {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px;
+        }
+
         .setting-header { display: flex; justify-content: space-between; align-items: center; }
         .toggle-switch { position: relative; width: 36px; height: 20px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2D3748; transition: .3s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2D3748; transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(16px); }
+
         .setting-inputs { display: flex; gap: 12px; }
         .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
         .input-group label { font-size: 0.75rem; color: var(--text-muted); }
-        .input-group input { background-color: #0D111D; border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 8px; font-size: 0.9rem; width: 100%; }
+        .input-group input {
+            background-color: #0D111D; border: 1px solid var(--border); color: var(--text-main);
+            padding: 8px; border-radius: 8px; font-size: 0.9rem; width: 100%;
+        }
+
         .settings-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; }
         .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-secondary { background-color: #1E2435; color: #D1D5DB; }
@@ -254,7 +252,6 @@
             </div>
         </div>
 
-        <!-- View 1: Dashboard -->
         <div id="viewSuivi" class="view-section">
             <div class="dashboard-grid">
 
@@ -265,8 +262,8 @@
                             <div class="card-value"><span id="valSpo2">--</span> <span>%</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Normale</span>
-                            <div class="card-subtext">Min 90% | Max 100%</div>
+                            <span id="badgeSpo2" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextSpo2">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartSpo2"></canvas></div>
@@ -279,8 +276,8 @@
                             <div class="card-value"><span id="valPulse">--</span> <span>bpm</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Normale</span>
-                            <div class="card-subtext">Min 50 | Max 120</div>
+                            <span id="badgePulse" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextPulse">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartPulse"></canvas></div>
@@ -293,8 +290,8 @@
                             <div class="card-value"><span id="valTension">-- / --</span> <span>mmHg</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Normale</span>
-                            <div class="card-subtext">Min 90/60 | Max 140/90</div>
+                            <span id="badgeSys" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextSys">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartTension"></canvas></div>
@@ -307,8 +304,8 @@
                             <div class="card-value"><span id="valUrine">--</span> <span id="unitUrine">ml / jour</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Dans la norme</span>
-                            <div class="card-subtext">Min 1000 | Max 2500</div>
+                            <span id="badgeUrine" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextUrine">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartUrine"></canvas></div>
@@ -321,8 +318,8 @@
                             <div class="card-value"><span id="valPoids">--</span> <span>kg</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Stable</span>
-                            <div class="card-subtext">Seuil de vigilance : 125 kg</div>
+                            <span id="badgePoids" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextPoids">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartPoids"></canvas></div>
@@ -335,7 +332,8 @@
                             <div class="card-value"><span id="valDouleur">--</span> <span>/ 10</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-warning">Modérée</span>
+                            <span id="badgeDouleur" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextDouleur">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
@@ -348,8 +346,8 @@
                             <div class="card-value"><span id="valResp">--</span> <span>br/min</span></div>
                         </div>
                         <div class="card-meta">
-                            <span class="badge badge-normal">Normale</span>
-                            <div class="card-subtext">Min 10 | Max 40</div>
+                            <span id="badgeResp" class="badge badge-normal">--</span>
+                            <div class="card-subtext" id="subtextResp">--</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartResp"></canvas></div>
@@ -390,71 +388,80 @@
             </div>
         </div>
 
-        <!-- View 2: Settings -->
         <div id="viewParams" class="view-section hidden">
             <div class="settings-grid">
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-wind" style="color:#A78BFA;"></i> Fréquence Respiratoire</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enableResp" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enableResp"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (br/min)</label><input type="number" id="minResp" value="10"></div>
-                        <div class="input-group"><label>Max (br/min)</label><input type="number" id="maxResp" value="40"></div>
+                        <div class="input-group"><label>Min (br/min)</label><input type="number" id="minResp"></div>
+                        <div class="input-group"><label>Max (br/min)</label><input type="number" id="maxResp"></div>
                     </div>
                 </div>
 
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-heart" style="color:#A855F7;"></i> Pouls</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enablePulse" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enablePulse"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (bpm)</label><input type="number" id="minPulse" value="50"></div>
-                        <div class="input-group"><label>Max (bpm)</label><input type="number" id="maxPulse" value="120"></div>
+                        <div class="input-group"><label>Min (bpm)</label><input type="number" id="minPulse"></div>
+                        <div class="input-group"><label>Max (bpm)</label><input type="number" id="maxPulse"></div>
                     </div>
                 </div>
 
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Systolique</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enableSys" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enableSys"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (mmHg)</label><input type="number" id="minSys" value="90"></div>
-                        <div class="input-group"><label>Max (mmHg)</label><input type="number" id="maxSys" value="140"></div>
+                        <div class="input-group"><label>Min (mmHg)</label><input type="number" id="minSys"></div>
+                        <div class="input-group"><label>Max (mmHg)</label><input type="number" id="maxSys"></div>
                     </div>
                 </div>
 
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-glass-water" style="color:#60A5FA;"></i> Diurèse / Urine</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enableUrine" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enableUrine"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (ml/j)</label><input type="number" id="minUrine" value="1000"></div>
-                        <div class="input-group"><label>Max (ml/j)</label><input type="number" id="maxUrine" value="2500"></div>
+                        <div class="input-group"><label>Min (ml/j)</label><input type="number" id="minUrine"></div>
+                        <div class="input-group"><label>Max (ml/j)</label><input type="number" id="maxUrine"></div>
                     </div>
                 </div>
 
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-weight-scale" style="color:#818CF8;"></i> Poids</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enablePoids" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enablePoids"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Seuil de vigilance (kg)</label><input type="number" id="maxPoids" value="125"></div>
+                        <div class="input-group"><label>Seuil de vigilance (kg)</label><input type="number" id="maxPoids"></div>
                     </div>
                 </div>
 
                 <div class="setting-card">
                     <div class="setting-header">
                         <div class="card-title"><i class="fa-solid fa-droplet" style="color:#38BDF8;"></i> Saturation SpO2</div>
-                        <label class="toggle-switch"><input type="checkbox" id="enableSpo2" checked><span class="slider"></span></label>
+                        <label class="toggle-switch"><input type="checkbox" id="enableSpo2"><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (%)</label><input type="number" id="minSpo2" value="90"></div>
-                        <div class="input-group"><label>Max (%)</label><input type="number" id="maxSpo2" value="100"></div>
+                        <div class="input-group"><label>Min (%)</label><input type="number" id="minSpo2"></div>
+                        <div class="input-group"><label>Max (%)</label><input type="number" id="maxSpo2"></div>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-header">
+                        <div class="card-title"><i class="fa-solid fa-bolt" style="color:#F97316;"></i> Douleur (0-10)</div>
+                        <label class="toggle-switch"><input type="checkbox" id="enableDouleur"><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-inputs">
+                        <div class="input-group"><label>Seuil de vigilance</label><input type="number" id="maxDouleur"></div>
                     </div>
                 </div>
             </div>
@@ -469,8 +476,96 @@
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
 
+        const DEFAULT_SETTINGS = {
+            enableResp: true, minResp: 12, maxResp: 20,
+            enablePulse: true, minPulse: 50, maxPulse: 120,
+            enableSys: true, minSys: 90, maxSys: 140,
+            enableUrine: true, minUrine: 1000, maxUrine: 2500,
+            enablePoids: true, maxPoids: 75,
+            enableSpo2: true, minSpo2: 90, maxSpo2: 100,
+            enableDouleur: true, maxDouleur: 4
+        };
+
+        let appSettings = {};
+
+        function loadSettings() {
+            const saved = localStorage.getItem('homecare_settings');
+            if (saved) {
+                try {
+                    appSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+                } catch(e) {
+                    appSettings = { ...DEFAULT_SETTINGS };
+                }
+            } else {
+                appSettings = { ...DEFAULT_SETTINGS };
+            }
+            applySettingsToForm();
+        }
+
+        function applySettingsToForm() {
+            for (const key in appSettings) {
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = appSettings[key];
+                    } else {
+                        el.value = appSettings[key] !== null ? appSettings[key] : '';
+                    }
+                }
+            }
+        }
+
+        function saveSettings() {
+            for (const key in DEFAULT_SETTINGS) {
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        appSettings[key] = el.checked;
+                    } else {
+                        appSettings[key] = el.value !== '' ? parseFloat(el.value) : null;
+                    }
+                }
+            }
+            localStorage.setItem('homecare_settings', JSON.stringify(appSettings));
+            renderDashboard();
+            alert('Paramètres enregistrés !');
+        }
+
+        function resetDefaultSettings() {
+            appSettings = { ...DEFAULT_SETTINGS };
+            localStorage.setItem('homecare_settings', JSON.stringify(appSettings));
+            applySettingsToForm();
+            renderDashboard();
+            alert('Réinitialisé aux valeurs par défaut.');
+        }
+
         Chart.defaults.color = '#727A8E';
         Chart.defaults.borderColor = '#1E2435';
+
+        const thresholdLinesPlugin = {
+            id: 'thresholdLines',
+            afterDraw(chart, args, options) {
+                if (!options || !options.thresholds) return;
+                const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+
+                options.thresholds.forEach(t => {
+                    if (!t.enabled || t.val === null || t.val === undefined || isNaN(t.val)) return;
+                    const yPos = y.getPixelForValue(t.val);
+                    if (yPos < chart.chartArea.top || yPos > chart.chartArea.bottom) return;
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.setLineDash(t.dash || [5, 5]);
+                    ctx.lineWidth = t.width || 1.5;
+                    ctx.strokeStyle = t.color || 'rgba(255, 255, 255, 0.5)';
+                    ctx.moveTo(left, yPos);
+                    ctx.lineTo(right, yPos);
+                    ctx.stroke();
+                    ctx.restore();
+                });
+            }
+        };
+        Chart.register(thresholdLinesPlugin);
 
         let chartInstances = {};
         let rawMedicalData = [];
@@ -520,13 +615,8 @@
             let min, max;
 
             if (period === 'today') {
-                // Échelle sur 24h qui démarre à 06h00 le matin
-                min = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
-                // Si l'heure actuelle est avant 06h00, la plage commence à 06h la veille
-                if (now.getHours() < 6) {
-                    min.setDate(min.getDate() - 1);
-                }
-                max = new Date(min.getTime() + 24 * 60 * 60 * 1000 - 1000); // Jusqu'à 05:59:59 le lendemain
+                min = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                max = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
             } else if (period === '7d') {
                 max = new Date(now);
                 min = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -607,18 +697,8 @@
             return 'week';
         }
 
-        function createTimeLineChart(id, dataPoints, color, minY, maxY, stepSize, bounds) {
+        function createTimeLineChart(id, dataPoints, color, minY, maxY, stepSize, bounds, thresholds = []) {
             if (chartInstances[id]) chartInstances[id].destroy();
-
-            const timeConfig = {
-                unit: getTimeUnit(currentPeriod),
-                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-            };
-
-            // Échelle verrouillée sur 2h d'intervalle démarrant à 06:00
-            if (currentPeriod === 'today') {
-                timeConfig.stepSize = 2;
-            }
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'line',
@@ -636,13 +716,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        thresholdLines: { thresholds: thresholds }
+                    },
                     scales: {
                         x: {
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: timeConfig,
+                            time: {
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+                            },
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -652,17 +738,8 @@
             });
         }
 
-        function createTimeBarChart(id, dataPoints, color, minY, maxY, stepSize, bounds, isDynamicColor = false) {
+        function createTimeBarChart(id, dataPoints, color, minY, maxY, stepSize, bounds, isDynamicColor = false, thresholds = []) {
             if (chartInstances[id]) chartInstances[id].destroy();
-
-            const timeConfig = {
-                unit: getTimeUnit(currentPeriod),
-                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-            };
-
-            if (currentPeriod === 'today') {
-                timeConfig.stepSize = 2;
-            }
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'bar',
@@ -676,13 +753,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        thresholdLines: { thresholds: thresholds }
+                    },
                     scales: {
                         x: {
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: timeConfig,
+                            time: {
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+                            },
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -692,87 +775,136 @@
             });
         }
 
+        function updateMetaBadge(badgeId, subtextId, value, min, max, alertThreshold = null, labels = { normal: 'Normale', warning: 'Vigilance' }) {
+            const badgeEl = document.getElementById(badgeId);
+            const subtextEl = document.getElementById(subtextId);
+            if (!badgeEl || !subtextEl) return;
+
+            let subTextParts = [];
+            if (min !== null && min !== undefined && min !== '') subTextParts.push(`Min ${min}`);
+            if (max !== null && max !== undefined && max !== '') subTextParts.push(`Max ${max}`);
+            if (alertThreshold !== null && alertThreshold !== undefined && alertThreshold !== '') subTextParts.push(`Seuil : ${alertThreshold}`);
+
+            subtextEl.innerText = subTextParts.length > 0 ? subTextParts.join(' | ') : 'Aucun seuil';
+
+            if (value === '--' || value === null || isNaN(value)) {
+                badgeEl.innerText = '--';
+                badgeEl.className = 'badge badge-normal';
+                return;
+            }
+
+            let isWarning = false;
+
+            if (alertThreshold !== null && alertThreshold !== undefined && alertThreshold !== '') {
+                if (value > alertThreshold) isWarning = true;
+            } else {
+                if (min !== null && min !== undefined && min !== '' && value < min) isWarning = true;
+                if (max !== null && max !== undefined && max !== '' && value > max) isWarning = true;
+            }
+
+            if (isWarning) {
+                badgeEl.innerText = labels.warning;
+                badgeEl.className = 'badge badge-warning';
+            } else {
+                badgeEl.innerText = labels.normal;
+                badgeEl.className = 'badge badge-normal';
+            }
+        }
+
         function renderDashboard() {
             if (!rawMedicalData.length) return;
 
             const bounds = getTimeBounds(currentPeriod);
             const filteredData = rawMedicalData.filter(r => r.timestamp && r.timestamp >= bounds.min && r.timestamp <= bounds.max);
 
-            const spo2Points = filteredData.filter(r => r.Oxygène !== null).map(r => ({ x: r.timestamp, y: r.Oxygène }));
-            const pulsePoints = filteredData.filter(r => r.Bpm !== null).map(r => ({ x: r.timestamp, y: r.Bpm }));
-            const poidsPoints = filteredData.filter(r => r.Poids !== null).map(r => ({ x: r.timestamp, y: r.Poids }));
-            const urinePoints = filteredData.filter(r => r.Urine !== null).map(r => ({ x: r.timestamp, y: r.Urine }));
-            const douleurPoints = filteredData.filter(r => r.Douleur !== null).map(r => ({ x: r.timestamp, y: r.Douleur }));
-            const respPoints = filteredData.filter(r => r.Resp !== null).map(r => ({ x: r.timestamp, y: r.Resp }));
-            const sysPoints = filteredData.filter(r => r.Sys !== null).map(r => ({ x: r.timestamp, y: r.Sys }));
-            const diaPoints = filteredData.filter(r => r.Dia !== null).map(r => ({ x: r.timestamp, y: r.Dia }));
+            const getPoints = (key) => filteredData.filter(r => r[key] !== null).map(r => ({ x: r.timestamp, y: r[key] }));
 
-            // Calcul de la moyenne des points
-            const getAverageVal = (pts) => {
-                if (!pts.length) return '--';
-                const sum = pts.reduce((acc, curr) => acc + curr.y, 0);
-                const avg = sum / pts.length;
-                return Number.isInteger(avg) ? avg : avg.toFixed(1);
+            const spo2Points = getPoints('Oxygène');
+            const pulsePoints = getPoints('Bpm');
+            const poidsPoints = getPoints('Poids');
+            const urinePoints = getPoints('Urine');
+            const douleurPoints = getPoints('Douleur');
+            const respPoints = getPoints('Resp');
+            const sysPoints = getPoints('Sys');
+            const diaPoints = getPoints('Dia');
+
+            const calcAvg = (pts) => {
+                if (!pts.length) return null;
+                const sum = pts.reduce((acc, p) => acc + p.y, 0);
+                return sum / pts.length;
             };
 
-            document.getElementById('valSpo2').innerText = getAverageVal(spo2Points);
-            document.getElementById('valPulse').innerText = getAverageVal(pulsePoints);
-            document.getElementById('valPoids').innerText = getAverageVal(poidsPoints);
-            document.getElementById('valResp').innerText = getAverageVal(respPoints);
-            document.getElementById('valDouleur').innerText = getAverageVal(douleurPoints);
+            const avgSpo2 = calcAvg(spo2Points);
+            const avgPulse = calcAvg(pulsePoints);
+            const avgPoids = calcAvg(poidsPoints);
+            const avgDouleur = calcAvg(douleurPoints);
+            const avgResp = calcAvg(respPoints);
+            const avgSys = calcAvg(sysPoints);
+            const avgDia = calcAvg(diaPoints);
 
-            const avgSys = getAverageVal(sysPoints);
-            const avgDia = getAverageVal(diaPoints);
-            document.getElementById('valTension').innerText = (avgSys !== '--') ? `${avgSys} / ${avgDia}` : '-- / --';
+            document.getElementById('valSpo2').innerText = avgSpo2 !== null ? Math.round(avgSpo2) : '--';
+            document.getElementById('valPulse').innerText = avgPulse !== null ? Math.round(avgPulse) : '--';
+            document.getElementById('valPoids').innerText = avgPoids !== null ? avgPoids.toFixed(1) : '--';
+            document.getElementById('valDouleur').innerText = avgDouleur !== null ? avgDouleur.toFixed(1) : '--';
+            document.getElementById('valResp').innerText = avgResp !== null ? Math.round(avgResp) : '--';
 
-            // Calcul spécifique de la diurèse
-            const valUrineElem = document.getElementById('valUrine');
-            const unitUrineElem = document.getElementById('unitUrine');
-
-            if (!urinePoints.length) {
-                valUrineElem.innerText = '--';
-            } else if (currentPeriod === 'today') {
-                // Aujourd'hui = Somme totale cumulée
-                const totalUrine = urinePoints.reduce((acc, curr) => acc + curr.y, 0);
-                valUrineElem.innerText = Math.round(totalUrine);
-                if (unitUrineElem) unitUrineElem.innerText = 'ml / jour';
+            if (avgSys !== null && avgDia !== null) {
+                document.getElementById('valTension').innerText = `${Math.round(avgSys)} / ${Math.round(avgDia)}`;
             } else {
-                // Multi-jours = Moyenne quotidienne des sommes journalières
-                const dailyTotals = {};
-                filteredData.forEach(r => {
-                    if (r.Urine !== null) {
-                        const dateKey = new Date(r.timestamp).toISOString().split('T')[0];
-                        dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + r.Urine;
-                    }
-                });
-
-                const totalsArray = Object.values(dailyTotals);
-                if (totalsArray.length > 0) {
-                    const avgDaily = totalsArray.reduce((acc, curr) => acc + curr, 0) / totalsArray.length;
-                    valUrineElem.innerText = Math.round(avgDaily);
-                } else {
-                    valUrineElem.innerText = '--';
-                }
-                if (unitUrineElem) unitUrineElem.innerText = 'ml / jour (moy)';
+                document.getElementById('valTension').innerText = '-- / --';
             }
 
-            // Graphiques
-            createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds);
-            createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds);
-            createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 100, 150, 10, bounds);
-            
-            // Fréquence respiratoire de 0 à 40 br/min (graduations de 10)
-            createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 40, 10, bounds);
+            let displayUrine = '--';
+            const unitUrineEl = document.getElementById('unitUrine');
+            if (urinePoints.length > 0) {
+                if (currentPeriod === 'today') {
+                    const totalUrine = urinePoints.reduce((acc, p) => acc + p.y, 0);
+                    displayUrine = Math.round(totalUrine);
+                    if (unitUrineEl) unitUrineEl.innerText = 'ml (Total)';
+                } else {
+                    const daysMap = {};
+                    urinePoints.forEach(p => {
+                        const d = new Date(p.x).toISOString().split('T')[0];
+                        daysMap[d] = (daysMap[d] || 0) + p.y;
+                    });
+                    const totals = Object.values(daysMap);
+                    const avgDaily = totals.reduce((a, b) => a + b, 0) / totals.length;
+                    displayUrine = Math.round(avgDaily);
+                    if (unitUrineEl) unitUrineEl.innerText = 'ml / jour';
+                }
+            } else {
+                if (unitUrineEl) unitUrineEl.innerText = 'ml / jour';
+            }
+            document.getElementById('valUrine').innerText = displayUrine;
 
-            // Tension Artérielle
+            updateMetaBadge('badgeSpo2', 'subtextSpo2', avgSpo2, appSettings.enableSpo2 ? appSettings.minSpo2 : null, appSettings.enableSpo2 ? appSettings.maxSpo2 : null);
+            updateMetaBadge('badgePulse', 'subtextPulse', avgPulse, appSettings.enablePulse ? appSettings.minPulse : null, appSettings.enablePulse ? appSettings.maxPulse : null);
+            updateMetaBadge('badgeSys', 'subtextSys', avgSys, appSettings.enableSys ? appSettings.minSys : null, appSettings.enableSys ? appSettings.maxSys : null);
+            updateMetaBadge('badgeUrine', 'subtextUrine', displayUrine !== '--' ? parseFloat(displayUrine) : null, appSettings.enableUrine ? appSettings.minUrine : null, appSettings.enableUrine ? appSettings.maxUrine : null);
+            updateMetaBadge('badgePoids', 'subtextPoids', avgPoids, null, null, appSettings.enablePoids ? appSettings.maxPoids : null, { normal: 'Stable', warning: 'Vigilance' });
+            updateMetaBadge('badgeDouleur', 'subtextDouleur', avgDouleur, null, null, appSettings.enableDouleur ? appSettings.maxDouleur : null, { normal: 'Faible', warning: 'Modérée' });
+            updateMetaBadge('badgeResp', 'subtextResp', avgResp, appSettings.enableResp ? appSettings.minResp : null, appSettings.enableResp ? appSettings.maxResp : null);
+
+            createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds, [
+                { val: appSettings.minSpo2, enabled: appSettings.enableSpo2, color: '#38BDF8' },
+                { val: appSettings.maxSpo2, enabled: appSettings.enableSpo2, color: '#38BDF8' }
+            ]);
+
+            createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds, [
+                { val: appSettings.minPulse, enabled: appSettings.enablePulse, color: '#A855F7' },
+                { val: appSettings.maxPulse, enabled: appSettings.enablePulse, color: '#A855F7' }
+            ]);
+
+            createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 50, 100, 10, bounds, [
+                { val: appSettings.maxPoids, enabled: appSettings.enablePoids, color: '#FB923C' }
+            ]);
+
+            createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 30, 5, bounds, [
+                { val: appSettings.minResp, enabled: appSettings.enableResp, color: '#A78BFA' },
+                { val: appSettings.maxResp, enabled: appSettings.enableResp, color: '#A78BFA' }
+            ]);
+
             if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
-            
-            const tensionTimeConfig = {
-                unit: getTimeUnit(currentPeriod),
-                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-            };
-            if (currentPeriod === 'today') tensionTimeConfig.stepSize = 2;
-
             chartInstances['chartTension'] = new Chart(document.getElementById('chartTension').getContext('2d'), {
                 type: 'line',
                 data: {
@@ -784,13 +916,24 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        thresholdLines: {
+                            thresholds: [
+                                { val: appSettings.minSys, enabled: appSettings.enableSys, color: '#EC4899' },
+                                { val: appSettings.maxSys, enabled: appSettings.enableSys, color: '#EC4899' }
+                            ]
+                        }
+                    },
                     scales: {
                         x: {
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: tensionTimeConfig,
+                            time: {
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+                            },
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -799,31 +942,18 @@
                 }
             });
 
-            // Diurèse de 0 à 6000 ml avec pas de 1000 ml
-            createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 6000, 1000, bounds);
-            createTimeBarChart('chartDouleur', douleurPoints, null, 0, 10, 2, bounds, true);
+            createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 3000, 500, bounds, false, [
+                { val: appSettings.minUrine, enabled: appSettings.enableUrine, color: '#60A5FA' },
+                { val: appSettings.maxUrine, enabled: appSettings.enableUrine, color: '#60A5FA' }
+            ]);
+
+            createTimeBarChart('chartDouleur', douleurPoints, null, 0, 10, 2, bounds, true, [
+                { val: appSettings.maxDouleur, enabled: appSettings.enableDouleur, color: '#FB923C' }
+            ]);
         }
 
-        function saveSettings() { alert('Paramètres enregistrés !'); }
-        function resetDefaultSettings() { alert('Réinitialisé.'); }
+        loadSettings();
 
-        // Détection propre des clés d'en-tête (en éliminant les caractères BOM/invisibles)
-        function findHeaderValue(row, possibleNames) {
-            const keys = Object.keys(row);
-            for (const name of possibleNames) {
-                const target = name.toLowerCase();
-                for (const key of keys) {
-                    const cleanKey = key.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    const cleanTarget = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    if (cleanKey === cleanTarget) {
-                        return row[key];
-                    }
-                }
-            }
-            return null;
-        }
-
-        // Chargement CSV
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
@@ -833,32 +963,24 @@
                 if (loader) loader.style.display = 'none';
 
                 rawMedicalData = results.data.map(r => {
-                    const dateRaw = findHeaderValue(r, ['DATE', 'Date']);
-                    const ts = parseFrenchDate(dateRaw);
-                    
+                    const ts = parseFrenchDate(r.DATE || r.Date || r.date);
                     let sysVal = null, diaVal = null;
-                    const tension = findHeaderValue(r, ['Tension', 'TENSION']);
+
+                    const tension = r.Tension || r.tension;
                     if (tension && tension.includes('/')) {
                         const p = tension.split('/');
                         sysVal = parseFloat(p[0]) || null;
                         diaVal = parseFloat(p[1]) || null;
                     }
 
-                    const oxygeneRaw = findHeaderValue(r, ['Oxygène', 'Oxygene', 'OXYGENE', 'Spo2', 'SPO2', 'Oxygen']);
-                    const bpmRaw = findHeaderValue(r, ['Bpm', 'BPM', 'Pouls', 'Pulse']);
-                    const poidsRaw = findHeaderValue(r, ['Poids', 'POIDS', 'Weight']);
-                    const urineRaw = findHeaderValue(r, ['Urine', 'URINE', 'Diurese', 'Diurèse']);
-                    const douleurRaw = findHeaderValue(r, ['Douleur', 'DOULEUR', 'Pain']);
-                    const respRaw = findHeaderValue(r, ['Fréquence Respiratoire', 'Fréquence respiratoire', 'Respiration', 'Resp', 'RESP']);
-
                     return {
                         timestamp: ts,
-                        Oxygène: parseFloat(oxygeneRaw) || null,
-                        Bpm: parseFloat(bpmRaw) || null,
-                        Poids: parseFloat(poidsRaw) || null,
-                        Urine: parseFloat(urineRaw) || null,
-                        Douleur: parseFloat(douleurRaw) || null,
-                        Resp: parseFloat(respRaw) || null,
+                        Oxygène: parseFloat(r.Oxygène || r.Oxygen || r.Spo2) || null,
+                        Bpm: parseFloat(r.Bpm || r.Pouls) || null,
+                        Poids: parseFloat(r.Poids) || null,
+                        Urine: parseFloat(r.Urine || r.Diurese) || null,
+                        Douleur: parseFloat(r.Douleur) || null,
+                        Resp: parseFloat(r['Fréquence Respiratoire'] || r.Respiration || r.Resp) || null,
                         Sys: sysVal,
                         Dia: diaVal
                     };
