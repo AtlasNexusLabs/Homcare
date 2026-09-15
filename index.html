@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeCare — Medical Dashboard</title>
+    <!-- Chart.js + Luxon Adapter pour échelle temporelle (Time Scale) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -94,6 +97,13 @@
         .header h1 { font-size: 1.3rem; font-weight: 700; }
         .header p { color: var(--text-muted); font-size: 0.75rem; }
 
+        .period-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
         .period-selector {
             display: flex;
             gap: 6px;
@@ -115,6 +125,23 @@
         }
         .period-btn.active { background-color: var(--primary); color: #FFF; }
         .period-btn:hover:not(.active) { color: var(--text-main); }
+
+        .custom-range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .custom-range-inputs input[type="date"] {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
 
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-icon { font-size: 1.1rem; color: var(--text-muted); cursor: pointer; }
@@ -300,12 +327,18 @@
             </div>
 
             <!-- Time Range Filters -->
-            <div class="period-selector" id="periodSelector">
-                <button class="period-btn active" onclick="setPeriod('today', event)">Aujourd'hui</button>
-                <button class="period-btn" onclick="setPeriod('7d', event)">7 jours</button>
-                <button class="period-btn" onclick="setPeriod('30d', event)">30 jours</button>
-                <button class="period-btn" onclick="setPeriod('3m', event)">3 mois</button>
-                <button class="period-btn" onclick="setPeriod('custom', event)"><i class="fa-regular fa-calendar"></i> Personnalisé</button>
+            <div class="period-container" id="periodSelector">
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="setPeriod('today', event)">Aujourd'hui</button>
+                    <button class="period-btn" onclick="setPeriod('7d', event)">7 jours</button>
+                    <button class="period-btn" onclick="setPeriod('30d', event)">30 jours</button>
+                    <button class="period-btn" onclick="setPeriod('3m', event)">3 mois</button>
+                    <button class="period-btn" onclick="setPeriod('custom', event)"><i class="fa-regular fa-calendar"></i> Personnalisé</button>
+                </div>
+                <div id="customRangePicker" class="custom-range-inputs hidden">
+                    Du <input type="date" id="customStartDate" onchange="applyCustomPeriod()">
+                    au <input type="date" id="customEndDate" onchange="applyCustomPeriod()">
+                </div>
             </div>
 
             <div class="header-right">
@@ -398,7 +431,7 @@
                     <div class="card-header">
                         <div>
                             <div class="card-title"><i class="fa-solid fa-bolt" style="color:#F97316;"></i> Douleur (0-10)</div>
-                            <div class="card-value"><span id="valDouleur">4</span> <span>/ 10</span></div>
+                            <div class="card-value"><span id="valDouleur">--</span> <span>/ 10</span></div>
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-warning">Modérée</span>
@@ -540,6 +573,9 @@
         Chart.defaults.borderColor = '#1E2435';
 
         let chartInstances = {};
+        let rawMedicalData = [];
+        let currentPeriod = 'today';
+        let customBounds = { min: null, max: null };
 
         function updateLiveDateTime() {
             const now = new Date();
@@ -579,27 +615,104 @@
             }
         }
 
+        function getTimeBounds(period) {
+            const now = new Date();
+            let min, max;
+
+            if (period === 'today') {
+                min = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                max = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            } else if (period === '7d') {
+                max = new Date(now);
+                min = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            } else if (period === '30d') {
+                max = new Date(now);
+                min = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            } else if (period === '3m') {
+                max = new Date(now);
+                min = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            } else if (period === 'custom') {
+                min = customBounds.min || new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                max = customBounds.max || now;
+            }
+
+            return { min: min.getTime(), max: max.getTime() };
+        }
+
         function setPeriod(period, evt) {
+            currentPeriod = period;
             const btns = document.querySelectorAll('.period-btn');
             btns.forEach(b => b.classList.remove('active'));
             if (evt && evt.target) {
                 evt.target.classList.add('active');
             }
+
+            const customPicker = document.getElementById('customRangePicker');
+            if (period === 'custom') {
+                customPicker.classList.remove('hidden');
+            } else {
+                customPicker.classList.add('hidden');
+            }
+
+            renderDashboard();
         }
 
-        function createLineChart(id, labels, data, color, minY, maxY, stepSize) {
+        function applyCustomPeriod() {
+            const startVal = document.getElementById('customStartDate').value;
+            const endVal = document.getElementById('customEndDate').value;
+
+            if (startVal && endVal) {
+                customBounds.min = new Date(startVal + 'T00:00:00').getTime();
+                customBounds.max = new Date(endVal + 'T23:59:59').getTime();
+                renderDashboard();
+            }
+        }
+
+        function parseFrenchDate(dateStr) {
+            if (!dateStr) return null;
+            dateStr = dateStr.trim();
+            const parts = dateStr.split(' ');
+            const dateParts = parts[0].split('/');
+            if (dateParts.length !== 3) return null;
+
+            const day = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1;
+            const year = parseInt(dateParts[2], 10);
+
+            let hours = 12, minutes = 0;
+            if (parts[1]) {
+                const timeParts = parts[1].split(':');
+                if (timeParts.length >= 2) {
+                    hours = parseInt(timeParts[0], 10);
+                    minutes = parseInt(timeParts[1], 10);
+                }
+            }
+
+            const date = new Date(year, month, day, hours, minutes);
+            return isNaN(date.getTime()) ? null : date.getTime();
+        }
+
+        function getTimeUnit(period) {
+            if (period === 'today') return 'hour';
+            if (period === '7d') return 'day';
+            if (period === '30d') return 'day';
+            return 'week';
+        }
+
+        function createTimeLineChart(id, dataPoints, color, minY, maxY, stepSize, bounds) {
             if (chartInstances[id]) chartInstances[id].destroy();
+
+            const unit = getTimeUnit(currentPeriod);
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: labels,
                     datasets: [{
-                        data: data,
+                        data: dataPoints,
                         borderColor: color,
                         borderWidth: 2,
                         tension: 0.3,
-                        pointRadius: 2.5,
+                        pointRadius: 3,
                         pointBackgroundColor: color,
                         fill: false
                     }]
@@ -609,11 +722,139 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                        x: {
+                            type: 'time',
+                            min: bounds.min,
+                            max: bounds.max,
+                            time: {
+                                unit: unit,
+                                displayFormats: {
+                                    hour: 'HH:mm',
+                                    day: 'dd MMM',
+                                    week: 'dd MMM'
+                                }
+                            },
+                            grid: { display: false },
+                            ticks: { font: { size: 9 }, maxRotation: 0 }
+                        },
                         y: { min: minY, max: maxY, ticks: { stepSize: stepSize, font: { size: 9 } } }
                     }
                 }
             });
+        }
+
+        function createTimeBarChart(id, dataPoints, color, minY, maxY, stepSize, bounds, isDynamicColor = false) {
+            if (chartInstances[id]) chartInstances[id].destroy();
+
+            const unit = getTimeUnit(currentPeriod);
+
+            chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
+                type: 'bar',
+                data: {
+                    datasets: [{
+                        data: dataPoints,
+                        backgroundColor: isDynamicColor ? dataPoints.map(p => p.y >= 6 ? '#EF4444' : (p.y >= 4 ? '#F97316' : '#10B981')) : color,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            min: bounds.min,
+                            max: bounds.max,
+                            time: {
+                                unit: unit,
+                                displayFormats: {
+                                    hour: 'HH:mm',
+                                    day: 'dd MMM',
+                                    week: 'dd MMM'
+                                }
+                            },
+                            grid: { display: false },
+                            ticks: { font: { size: 9 }, maxRotation: 0 }
+                        },
+                        y: { min: minY, max: maxY, ticks: { stepSize: stepSize, font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        function renderDashboard() {
+            if (!rawMedicalData.length) return;
+
+            const bounds = getTimeBounds(currentPeriod);
+
+            // Extraction & filtrage par timestamp
+            const filteredData = rawMedicalData.filter(r => r.timestamp && r.timestamp >= bounds.min && r.timestamp <= bounds.max);
+
+            const spo2Points = filteredData.filter(r => r.Oxygène !== null).map(r => ({ x: r.timestamp, y: r.Oxygène }));
+            const pulsePoints = filteredData.filter(r => r.Bpm !== null).map(r => ({ x: r.timestamp, y: r.Bpm }));
+            const poidsPoints = filteredData.filter(r => r.Poids !== null).map(r => ({ x: r.timestamp, y: r.Poids }));
+            const urinePoints = filteredData.filter(r => r.Urine !== null).map(r => ({ x: r.timestamp, y: r.Urine }));
+            const douleurPoints = filteredData.filter(r => r.Douleur !== null).map(r => ({ x: r.timestamp, y: r.Douleur }));
+            const respPoints = filteredData.filter(r => r.Resp !== null).map(r => ({ x: r.timestamp, y: r.Resp }));
+
+            const sysPoints = filteredData.filter(r => r.Sys !== null).map(r => ({ x: r.timestamp, y: r.Sys }));
+            const diaPoints = filteredData.filter(r => r.Dia !== null).map(r => ({ x: r.timestamp, y: r.Dia }));
+
+            // Obtenir la dernière valeur disponible DANS la période sélectionnée
+            const getLastVal = (pts) => pts.length ? pts[pts.length - 1].y : '--';
+
+            document.getElementById('valSpo2').innerText = getLastVal(spo2Points);
+            document.getElementById('valPulse').innerText = getLastVal(pulsePoints);
+            document.getElementById('valPoids').innerText = getLastVal(poidsPoints);
+            document.getElementById('valUrine').innerText = getLastVal(urinePoints);
+            document.getElementById('valResp').innerText = getLastVal(respPoints);
+            document.getElementById('valDouleur').innerText = getLastVal(douleurPoints);
+
+            const lastSys = getLastVal(sysPoints);
+            const lastDia = getLastVal(diaPoints);
+            document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
+
+            // Chart Rendering avec Time Scale
+            createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds);
+            createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds);
+            createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 50, 100, 10, bounds);
+            createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 30, 5, bounds);
+
+            // Chart Tension Artérielle Multi-Lignes
+            if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
+            chartInstances['chartTension'] = new Chart(document.getElementById('chartTension').getContext('2d'), {
+                type: 'line',
+                data: {
+                    datasets: [
+                        { data: sysPoints, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 3 },
+                        { data: diaPoints, borderColor: '#818CF8', borderWidth: 2, tension: 0.3, pointRadius: 3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            min: bounds.min,
+                            max: bounds.max,
+                            time: {
+                                unit: getTimeUnit(currentPeriod),
+                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+                            },
+                            grid: { display: false },
+                            ticks: { font: { size: 9 }, maxRotation: 0 }
+                        },
+                        y: { min: 40, max: 180, ticks: { stepSize: 20, font: { size: 9 } } }
+                    }
+                }
+            });
+
+            // Graphiques en barres (Diurèse & Douleur)
+            createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 3000, 500, bounds);
+            createTimeBarChart('chartDouleur', douleurPoints, null, 0, 10, 2, bounds, true);
         }
 
         function saveSettings() {
@@ -630,122 +871,39 @@
             alert('Valeurs réinitialisées aux seuils standards.');
         }
 
+        // Chargement initial du CSV Google Sheets
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
                 document.getElementById('loading').style.display = 'none';
-                const rows = results.data;
 
-                const labels = rows.map(r => {
-                    const d = (r.DATE || '').trim();
-                    if (!d) return '';
-                    if (d.includes(' ')) {
-                        const parts = d.split(' ');
-                        return parts[1].substring(0, 5);
-                    }
-                    return d;
-                });
+                rawMedicalData = results.data.map(r => {
+                    const ts = parseFrenchDate(r.DATE);
+                    let sysVal = null, diaVal = null;
 
-                const spo2 = rows.map(r => parseFloat(r.Oxygène) || null);
-                const pulse = rows.map(r => parseFloat(r.Bpm) || null);
-                const poids = rows.map(r => parseFloat(r.Poids) || null);
-                const urine = rows.map(r => parseFloat(r.Urine) || null);
-                const douleur = rows.map(r => parseFloat(r.Douleur) || 0);
-                const resp = rows.map(r => parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null);
-
-                const sys = [], dia = [];
-                rows.forEach(r => {
                     if (r.Tension && r.Tension.includes('/')) {
                         const p = r.Tension.split('/');
-                        sys.push(parseFloat(p[0]));
-                        dia.push(parseFloat(p[1]));
-                    } else {
-                        sys.push(null); dia.push(null);
+                        sysVal = parseFloat(p[0]) || null;
+                        diaVal = parseFloat(p[1]) || null;
                     }
-                });
 
-                const last = arr => [...arr].reverse().find(v => v !== null && !isNaN(v)) || '--';
+                    return {
+                        timestamp: ts,
+                        Oxygène: parseFloat(r.Oxygène) || null,
+                        Bpm: parseFloat(r.Bpm) || null,
+                        Poids: parseFloat(r.Poids) || null,
+                        Urine: parseFloat(r.Urine) || null,
+                        Douleur: parseFloat(r.Douleur) || null,
+                        Resp: parseFloat(r['Fréquence Respiratoire'] || r.Respiration) || null,
+                        Sys: sysVal,
+                        Dia: diaVal
+                    };
+                }).filter(r => r.timestamp !== null)
+                  .sort((a, b) => a.timestamp - b.timestamp);
 
-                document.getElementById('valSpo2').innerText = last(spo2);
-                document.getElementById('valPulse').innerText = last(pulse);
-                document.getElementById('valPoids').innerText = last(poids);
-                document.getElementById('valUrine').innerText = last(urine);
-                document.getElementById('valResp').innerText = last(resp);
-                document.getElementById('valDouleur').innerText = last(douleur);
-
-                const lastSys = last(sys), lastDia = last(dia);
-                document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
-
-                // Chart Rendering
-                createLineChart('chartSpo2', labels, spo2, '#38BDF8', 80, 100, 5);
-                createLineChart('chartPulse', labels, pulse, '#A855F7', 40, 140, 20);
-
-                if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
-                chartInstances['chartTension'] = new Chart(document.getElementById('chartTension').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { data: sys, borderColor: '#EC4899', borderWidth: 2, tension: 0.3, pointRadius: 2.5 },
-                            { data: dia, borderColor: '#818CF8', borderWidth: 2, tension: 0.3, pointRadius: 2.5 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
-                            y: { min: 40, max: 180, ticks: { stepSize: 20, font: { size: 9 } } }
-                        }
-                    }
-                });
-
-                if (chartInstances['chartUrine']) chartInstances['chartUrine'].destroy();
-                chartInstances['chartUrine'] = new Chart(document.getElementById('chartUrine').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{ data: urine, backgroundColor: '#60A5FA', borderRadius: 4 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
-                            y: { min: 0, max: 3000, ticks: { stepSize: 500, font: { size: 9 } } }
-                        }
-                    }
-                });
-
-                createLineChart('chartPoids', labels, poids, '#818CF8', 50, 100, 10);
-
-                if (chartInstances['chartDouleur']) chartInstances['chartDouleur'].destroy();
-                chartInstances['chartDouleur'] = new Chart(document.getElementById('chartDouleur').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: douleur,
-                            backgroundColor: douleur.map(v => v >= 6 ? '#EF4444' : (v >= 4 ? '#F97316' : '#10B981')),
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
-                            y: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 } } }
-                        }
-                    }
-                });
-
-                createLineChart('chartResp', labels, resp, '#A78BFA', 0, 30, 5);
+                renderDashboard();
             }
         });
     </script>
