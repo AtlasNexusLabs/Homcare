@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeCare — Medical Dashboard</title>
-    <!-- Chart.js + Luxon Adapter pour échelle temporelle (Time Scale) -->
+    <!-- Chart.js + Luxon Adapter -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
@@ -36,7 +36,6 @@
             overflow: hidden;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background-color: var(--bg-sidebar);
@@ -48,13 +47,7 @@
             flex-shrink: 0;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
+        .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
         .brand i { font-size: 24px; color: var(--primary); }
         .brand-title { font-size: 1.1rem; font-weight: 700; }
         .brand-subtitle { font-size: 0.75rem; color: var(--text-muted); }
@@ -69,14 +62,12 @@
         .nav-item.active { background-color: var(--primary); color: #FFF; font-weight: 600; }
 
         .sidebar-bottom { display: flex; flex-direction: column; gap: 12px; }
-
         .sidebar-footer {
             background-color: #151824; padding: 10px 12px; border-radius: 10px;
             display: flex; align-items: center; gap: 10px; font-size: 0.8rem;
         }
         .status-dot { width: 8px; height: 8px; background-color: #10B981; border-radius: 50%; }
 
-        /* Main Content Area */
         .main-content {
             flex: 1;
             padding: 16px 24px;
@@ -86,7 +77,6 @@
             overflow: hidden;
         }
 
-        /* Header & Period Controls */
         .header {
             display: flex;
             justify-content: space-between;
@@ -97,50 +87,23 @@
         .header h1 { font-size: 1.3rem; font-weight: 700; }
         .header p { color: var(--text-muted); font-size: 0.75rem; }
 
-        .period-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-        }
-
+        .period-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         .period-selector {
-            display: flex;
-            gap: 6px;
-            background-color: var(--bg-sidebar);
-            padding: 4px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
+            display: flex; gap: 6px; background-color: var(--bg-sidebar);
+            padding: 4px; border-radius: 10px; border: 1px solid var(--border);
         }
         .period-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: none; border: none; color: var(--text-muted);
+            padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s;
         }
         .period-btn.active { background-color: var(--primary); color: #FFF; }
         .period-btn:hover:not(.active) { color: var(--text-main); }
 
-        .custom-range-inputs {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
+        .custom-range-inputs { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--text-muted); }
         .custom-range-inputs input[type="date"] {
-            background-color: var(--bg-sidebar);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            background-color: var(--bg-sidebar); border: 1px solid var(--border);
+            color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;
         }
 
         .header-right { display: flex; align-items: center; gap: 16px; }
@@ -157,7 +120,6 @@
         .view-section { display: flex; flex-direction: column; flex: 1; height: 100%; min-height: 0; }
         .hidden { display: none !important; }
 
-        /* Dashboard Grid Layout (Asymétrique origine) */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -180,14 +142,8 @@
             min-height: 0;
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 4px;
-        }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
         .card-title { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #D1D5DB; font-weight: 600; }
-
         .card-meta { text-align: right; }
         .badge { padding: 2px 6px; border-radius: 8px; font-size: 0.65rem; font-weight: 600; display: inline-block; }
         .badge-normal { background-color: var(--badge-green); color: var(--badge-green-text); }
@@ -199,7 +155,6 @@
 
         .chart-container { position: relative; flex: 1; width: 100%; min-height: 0; }
 
-        /* Encart Observations */
         .obs-list { display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem; margin-top: 8px; }
         .obs-item { display: flex; align-items: center; gap: 8px; }
         .obs-item i { width: 14px; text-align: center; color: var(--text-muted); }
@@ -209,70 +164,21 @@
         .obs-note-title { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px; }
         .obs-note-text { font-size: 0.75rem; color: #D1D5DB; line-height: 1.2; }
 
-        /* Settings Page */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-            overflow-y: auto;
-        }
-
-        .setting-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; overflow-y: auto; }
+        .setting-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
         .setting-header { display: flex; justify-content: space-between; align-items: center; }
         .toggle-switch { position: relative; width: 36px; height: 20px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #2D3748; transition: .3s; border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
-            background-color: white; transition: .3s; border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2D3748; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(16px); }
-
         .setting-inputs { display: flex; gap: 12px; }
         .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
         .input-group label { font-size: 0.75rem; color: var(--text-muted); }
-        .input-group input {
-            background-color: #0D111D;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            width: 100%;
-        }
-
-        .settings-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-            padding-top: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
+        .input-group input { background-color: #0D111D; border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 8px; font-size: 0.9rem; width: 100%; }
+        .settings-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-secondary { background-color: #1E2435; color: #D1D5DB; }
         .btn-secondary:hover { background-color: #2A324B; }
         .btn-primary { background-color: var(--primary); color: #FFF; }
@@ -289,7 +195,6 @@
 
     <div id="loading">Chargement des données...</div>
 
-    <!-- Sidebar Navigation -->
     <div class="sidebar">
         <div>
             <div class="brand">
@@ -318,7 +223,6 @@
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="main-content">
         <div class="header">
             <div>
@@ -326,7 +230,6 @@
                 <p id="pageSubtitle">Vos données de santé en un coup d'œil</p>
             </div>
 
-            <!-- Time Range Filters -->
             <div class="period-container" id="periodSelector">
                 <div class="period-selector">
                     <button class="period-btn active" onclick="setPeriod('today', event)">Aujourd'hui</button>
@@ -355,7 +258,6 @@
         <div id="viewSuivi" class="view-section">
             <div class="dashboard-grid">
 
-                <!-- Ligne 1 -->
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -398,12 +300,11 @@
                     <div class="chart-container"><canvas id="chartTension"></canvas></div>
                 </div>
 
-                <!-- Ligne 2 -->
                 <div class="card">
                     <div class="card-header">
                         <div>
                             <div class="card-title"><i class="fa-solid fa-glass-water" style="color:#60A5FA;"></i> Diurèse / Urine</div>
-                            <div class="card-value"><span id="valUrine">--</span> <span>ml / jour</span></div>
+                            <div class="card-value"><span id="valUrine">--</span> <span id="unitUrine">ml / jour</span></div>
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-normal">Dans la norme</span>
@@ -421,7 +322,7 @@
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-normal">Stable</span>
-                            <div class="card-subtext">Seuil de vigilance : 75 kg</div>
+                            <div class="card-subtext">Seuil de vigilance : 125 kg</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartPoids"></canvas></div>
@@ -440,7 +341,6 @@
                     <div class="chart-container"><canvas id="chartDouleur"></canvas></div>
                 </div>
 
-                <!-- Ligne 3 -->
                 <div class="card col-span-2">
                     <div class="card-header">
                         <div>
@@ -449,7 +349,7 @@
                         </div>
                         <div class="card-meta">
                             <span class="badge badge-normal">Normale</span>
-                            <div class="card-subtext">Min 12 | Max 20</div>
+                            <div class="card-subtext">Min 10 | Max 40</div>
                         </div>
                     </div>
                     <div class="chart-container"><canvas id="chartResp"></canvas></div>
@@ -499,8 +399,8 @@
                         <label class="toggle-switch"><input type="checkbox" id="enableResp" checked><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Min (br/min)</label><input type="number" id="minResp" value="12"></div>
-                        <div class="input-group"><label>Max (br/min)</label><input type="number" id="maxResp" value="20"></div>
+                        <div class="input-group"><label>Min (br/min)</label><input type="number" id="minResp" value="10"></div>
+                        <div class="input-group"><label>Max (br/min)</label><input type="number" id="maxResp" value="40"></div>
                     </div>
                 </div>
 
@@ -543,7 +443,7 @@
                         <label class="toggle-switch"><input type="checkbox" id="enablePoids" checked><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
-                        <div class="input-group"><label>Seuil de vigilance (kg)</label><input type="number" id="maxPoids" value="75"></div>
+                        <div class="input-group"><label>Seuil de vigilance (kg)</label><input type="number" id="maxPoids" value="125"></div>
                     </div>
                 </div>
 
@@ -620,8 +520,13 @@
             let min, max;
 
             if (period === 'today') {
-                min = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-                max = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                // Échelle sur 24h qui démarre à 06h00 le matin
+                min = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
+                // Si l'heure actuelle est avant 06h00, la plage commence à 06h la veille
+                if (now.getHours() < 6) {
+                    min.setDate(min.getDate() - 1);
+                }
+                max = new Date(min.getTime() + 24 * 60 * 60 * 1000 - 1000); // Jusqu'à 05:59:59 le lendemain
             } else if (period === '7d') {
                 max = new Date(now);
                 min = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -670,13 +575,11 @@
             if (!dateStr) return null;
             dateStr = dateStr.trim();
             
-            // Format ISO ou standard JS
             if (dateStr.includes('-')) {
                 const parsed = Date.parse(dateStr);
                 return isNaN(parsed) ? null : parsed;
             }
 
-            // Format FR DD/MM/YYYY
             const parts = dateStr.split(' ');
             const dateParts = parts[0].split('/');
             if (dateParts.length !== 3) return null;
@@ -707,6 +610,16 @@
         function createTimeLineChart(id, dataPoints, color, minY, maxY, stepSize, bounds) {
             if (chartInstances[id]) chartInstances[id].destroy();
 
+            const timeConfig = {
+                unit: getTimeUnit(currentPeriod),
+                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+            };
+
+            // Échelle verrouillée sur 2h d'intervalle démarrant à 06:00
+            if (currentPeriod === 'today') {
+                timeConfig.stepSize = 2;
+            }
+
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'line',
                 data: {
@@ -729,10 +642,7 @@
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: {
-                                unit: getTimeUnit(currentPeriod),
-                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-                            },
+                            time: timeConfig,
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -744,6 +654,15 @@
 
         function createTimeBarChart(id, dataPoints, color, minY, maxY, stepSize, bounds, isDynamicColor = false) {
             if (chartInstances[id]) chartInstances[id].destroy();
+
+            const timeConfig = {
+                unit: getTimeUnit(currentPeriod),
+                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+            };
+
+            if (currentPeriod === 'today') {
+                timeConfig.stepSize = 2;
+            }
 
             chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
                 type: 'bar',
@@ -763,10 +682,7 @@
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: {
-                                unit: getTimeUnit(currentPeriod),
-                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-                            },
+                            time: timeConfig,
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -791,31 +707,72 @@
             const sysPoints = filteredData.filter(r => r.Sys !== null).map(r => ({ x: r.timestamp, y: r.Sys }));
             const diaPoints = filteredData.filter(r => r.Dia !== null).map(r => ({ x: r.timestamp, y: r.Dia }));
 
-            // Obtenir la dernière valeur disponible dans la plage, ou la toute dernière valeur globale si vide
-            const getLastVal = (pts, key) => {
-                if (pts.length) return pts[pts.length - 1].y;
-                const globalPts = rawMedicalData.filter(r => r[key] !== null);
-                return globalPts.length ? globalPts[globalPts.length - 1][key] : '--';
+            // Calcul de la moyenne des points
+            const getAverageVal = (pts) => {
+                if (!pts.length) return '--';
+                const sum = pts.reduce((acc, curr) => acc + curr.y, 0);
+                const avg = sum / pts.length;
+                return Number.isInteger(avg) ? avg : avg.toFixed(1);
             };
 
-            document.getElementById('valSpo2').innerText = getLastVal(spo2Points, 'Oxygène');
-            document.getElementById('valPulse').innerText = getLastVal(pulsePoints, 'Bpm');
-            document.getElementById('valPoids').innerText = getLastVal(poidsPoints, 'Poids');
-            document.getElementById('valUrine').innerText = getLastVal(urinePoints, 'Urine');
-            document.getElementById('valResp').innerText = getLastVal(respPoints, 'Resp');
-            document.getElementById('valDouleur').innerText = getLastVal(douleurPoints, 'Douleur');
+            document.getElementById('valSpo2').innerText = getAverageVal(spo2Points);
+            document.getElementById('valPulse').innerText = getAverageVal(pulsePoints);
+            document.getElementById('valPoids').innerText = getAverageVal(poidsPoints);
+            document.getElementById('valResp').innerText = getAverageVal(respPoints);
+            document.getElementById('valDouleur').innerText = getAverageVal(douleurPoints);
 
-            const lastSys = getLastVal(sysPoints, 'Sys');
-            const lastDia = getLastVal(diaPoints, 'Dia');
-            document.getElementById('valTension').innerText = (lastSys !== '--') ? `${lastSys} / ${lastDia}` : '-- / --';
+            const avgSys = getAverageVal(sysPoints);
+            const avgDia = getAverageVal(diaPoints);
+            document.getElementById('valTension').innerText = (avgSys !== '--') ? `${avgSys} / ${avgDia}` : '-- / --';
 
-            // Rendu des graphiques
+            // Calcul spécifique de la diurèse
+            const valUrineElem = document.getElementById('valUrine');
+            const unitUrineElem = document.getElementById('unitUrine');
+
+            if (!urinePoints.length) {
+                valUrineElem.innerText = '--';
+            } else if (currentPeriod === 'today') {
+                // Aujourd'hui = Somme totale cumulée
+                const totalUrine = urinePoints.reduce((acc, curr) => acc + curr.y, 0);
+                valUrineElem.innerText = Math.round(totalUrine);
+                if (unitUrineElem) unitUrineElem.innerText = 'ml / jour';
+            } else {
+                // Multi-jours = Moyenne quotidienne des sommes journalières
+                const dailyTotals = {};
+                filteredData.forEach(r => {
+                    if (r.Urine !== null) {
+                        const dateKey = new Date(r.timestamp).toISOString().split('T')[0];
+                        dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + r.Urine;
+                    }
+                });
+
+                const totalsArray = Object.values(dailyTotals);
+                if (totalsArray.length > 0) {
+                    const avgDaily = totalsArray.reduce((acc, curr) => acc + curr, 0) / totalsArray.length;
+                    valUrineElem.innerText = Math.round(avgDaily);
+                } else {
+                    valUrineElem.innerText = '--';
+                }
+                if (unitUrineElem) unitUrineElem.innerText = 'ml / jour (moy)';
+            }
+
+            // Graphiques
             createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds);
             createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds);
-            createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 50, 100, 10, bounds);
-            createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 30, 5, bounds);
+            createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 100, 150, 10, bounds);
+            
+            // Fréquence respiratoire de 0 à 40 br/min (graduations de 10)
+            createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 40, 10, bounds);
 
+            // Tension Artérielle
             if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
+            
+            const tensionTimeConfig = {
+                unit: getTimeUnit(currentPeriod),
+                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
+            };
+            if (currentPeriod === 'today') tensionTimeConfig.stepSize = 2;
+
             chartInstances['chartTension'] = new Chart(document.getElementById('chartTension').getContext('2d'), {
                 type: 'line',
                 data: {
@@ -833,10 +790,7 @@
                             type: 'time',
                             min: bounds.min,
                             max: bounds.max,
-                            time: {
-                                unit: getTimeUnit(currentPeriod),
-                                displayFormats: { hour: 'HH:mm', day: 'dd MMM', week: 'dd MMM' }
-                            },
+                            time: tensionTimeConfig,
                             grid: { display: false },
                             ticks: { font: { size: 9 }, maxRotation: 0 }
                         },
@@ -845,14 +799,31 @@
                 }
             });
 
-            createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 3000, 500, bounds);
+            // Diurèse de 0 à 6000 ml avec pas de 1000 ml
+            createTimeBarChart('chartUrine', urinePoints, '#60A5FA', 0, 6000, 1000, bounds);
             createTimeBarChart('chartDouleur', douleurPoints, null, 0, 10, 2, bounds, true);
         }
 
         function saveSettings() { alert('Paramètres enregistrés !'); }
         function resetDefaultSettings() { alert('Réinitialisé.'); }
 
-        // Chargement du CSV
+        // Détection propre des clés d'en-tête (en éliminant les caractères BOM/invisibles)
+        function findHeaderValue(row, possibleNames) {
+            const keys = Object.keys(row);
+            for (const name of possibleNames) {
+                const target = name.toLowerCase();
+                for (const key of keys) {
+                    const cleanKey = key.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const cleanTarget = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (cleanKey === cleanTarget) {
+                        return row[key];
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Chargement CSV
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
@@ -862,24 +833,32 @@
                 if (loader) loader.style.display = 'none';
 
                 rawMedicalData = results.data.map(r => {
-                    const ts = parseFrenchDate(r.DATE || r.Date || r.date);
+                    const dateRaw = findHeaderValue(r, ['DATE', 'Date']);
+                    const ts = parseFrenchDate(dateRaw);
+                    
                     let sysVal = null, diaVal = null;
-
-                    const tension = r.Tension || r.tension;
+                    const tension = findHeaderValue(r, ['Tension', 'TENSION']);
                     if (tension && tension.includes('/')) {
                         const p = tension.split('/');
                         sysVal = parseFloat(p[0]) || null;
                         diaVal = parseFloat(p[1]) || null;
                     }
 
+                    const oxygeneRaw = findHeaderValue(r, ['Oxygène', 'Oxygene', 'OXYGENE', 'Spo2', 'SPO2', 'Oxygen']);
+                    const bpmRaw = findHeaderValue(r, ['Bpm', 'BPM', 'Pouls', 'Pulse']);
+                    const poidsRaw = findHeaderValue(r, ['Poids', 'POIDS', 'Weight']);
+                    const urineRaw = findHeaderValue(r, ['Urine', 'URINE', 'Diurese', 'Diurèse']);
+                    const douleurRaw = findHeaderValue(r, ['Douleur', 'DOULEUR', 'Pain']);
+                    const respRaw = findHeaderValue(r, ['Fréquence Respiratoire', 'Fréquence respiratoire', 'Respiration', 'Resp', 'RESP']);
+
                     return {
                         timestamp: ts,
-                        Oxygène: parseFloat(r.Oxygène || r.Oxygen || r.Spo2) || null,
-                        Bpm: parseFloat(r.Bpm || r.Pouls) || null,
-                        Poids: parseFloat(r.Poids) || null,
-                        Urine: parseFloat(r.Urine || r.Diurese) || null,
-                        Douleur: parseFloat(r.Douleur) || null,
-                        Resp: parseFloat(r['Fréquence Respiratoire'] || r.Respiration || r.Resp) || null,
+                        Oxygène: parseFloat(oxygeneRaw) || null,
+                        Bpm: parseFloat(bpmRaw) || null,
+                        Poids: parseFloat(poidsRaw) || null,
+                        Urine: parseFloat(urineRaw) || null,
+                        Douleur: parseFloat(douleurRaw) || null,
+                        Resp: parseFloat(respRaw) || null,
                         Sys: sysVal,
                         Dia: diaVal
                     };
