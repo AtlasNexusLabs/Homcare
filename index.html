@@ -183,7 +183,7 @@
         .input-group label { font-size: 0.75rem; color: var(--text-muted); }
         .input-group input { background-color: #0D111D; border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 8px; font-size: 0.9rem; width: 100%; }
         .settings-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; }
-        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .btn-secondary { background-color: #1E2435; color: #D1D5DB; }
         .btn-secondary:hover { background-color: #2A324B; }
         .btn-primary { background-color: var(--primary); color: #FFF; }
@@ -198,18 +198,40 @@
         }
         .modal-card {
             background-color: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; width: 520px; max-width: 90%; padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 16px;
+            border-radius: 16px; width: 620px; max-width: 95%; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 14px;
+            max-height: 90vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
         .modal-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+        .modal-header-actions { display: flex; align-items: center; gap: 10px; }
         .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
         .modal-close:hover { color: var(--text-main); }
-        .patient-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem; }
-        .info-box { background: #0D111D; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        .info-box label { font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        
+        .patient-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; }
+        .info-box { background: #0D111D; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+        .info-box label { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 2px; font-weight: 600; text-transform: uppercase; }
         .info-box span { font-weight: 600; color: var(--text-main); }
+        .info-box input, .info-box textarea {
+            background: #151A28; border: 1px solid var(--border); color: var(--text-main);
+            padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-family: inherit; width: 100%;
+        }
+        .info-box textarea { resize: vertical; min-height: 48px; }
         .info-box.full { grid-column: span 2; }
+
+        .secu-box-content { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .eye-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 2px 6px; }
+        .eye-btn:hover { color: var(--text-main); }
+
+        .prescription-container { margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+        .prescription-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .prescription-item {
+            background: #151A28; border: 1px solid var(--border); border-radius: 6px;
+            padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px;
+        }
+        .prescription-item a { color: var(--primary); text-decoration: none; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .prescription-item a:hover { text-decoration: underline; }
+        .prescription-item .remove-file { color: #F87171; cursor: pointer; }
 
         #loading {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -520,40 +542,82 @@
         <div class="modal-card">
             <div class="modal-header">
                 <div class="modal-title"><i class="fa-solid fa-id-card"></i> Fiche Médicale d'Urgence</div>
-                <button class="modal-close" onclick="togglePatientModal()"><i class="fa-solid fa-xmark"></i></button>
+                <div class="modal-header-actions">
+                    <button id="btnEditPatient" class="btn btn-secondary" onclick="toggleEditPatient()"><i class="fa-solid fa-pen-to-square"></i> Modifier</button>
+                    <button class="modal-close" onclick="togglePatientModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
+            
             <div class="patient-info-grid">
                 <div class="info-box">
                     <label>Nom & Prénom</label>
-                    <span>[À remplir]</span>
+                    <span id="view_nom">--</span>
+                    <input type="text" id="edit_nom" class="hidden">
                 </div>
                 <div class="info-box">
                     <label>Date de Naissance</label>
-                    <span>[À remplir]</span>
+                    <span id="view_dob">--</span>
+                    <input type="date" id="edit_dob" class="hidden">
                 </div>
                 <div class="info-box">
                     <label>Groupe Sanguin</label>
-                    <span>[À remplir]</span>
+                    <span id="view_sang">--</span>
+                    <input type="text" id="edit_sang" class="hidden" placeholder="Ex: O+">
                 </div>
                 <div class="info-box">
-                    <label>Sécurité Sociale</label>
-                    <span>[À remplir]</span>
+                    <label>Sécurité Sociale (Carte Vitale)</label>
+                    <div class="secu-box-content">
+                        <span id="view_secu">•••••••••••••••</span>
+                        <button class="eye-btn" onclick="toggleSecuVisibility()" title="Masquer / Afficher"><i id="secuEyeIcon" class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <input type="text" id="edit_secu" class="hidden" placeholder="1 80 00 00 000 000 00">
                 </div>
+                <div class="info-box">
+                    <label>HAD depuis le (Hospitalisation à Domicile)</label>
+                    <span id="view_had">--</span>
+                    <input type="date" id="edit_had" class="hidden">
+                </div>
+                <div class="info-box">
+                    <label>Médecin Traitant</label>
+                    <span id="view_medecin">--</span>
+                    <input type="text" id="edit_medecin" class="hidden" placeholder="Dr. Nom - 05 XX XX XX XX">
+                </div>
+                
                 <div class="info-box full">
-                    <label>Contact d'Urgence</label>
-                    <span>[Nom / Relation - 06 XX XX XX XX]</span>
+                    <label>Proche Aidant (Urgence)</label>
+                    <span id="view_aidant">--</span>
+                    <input type="text" id="edit_aidant" class="hidden" placeholder="Nom Prénom - Relation - 06 XX XX XX XX">
                 </div>
+
+                <div class="info-box full">
+                    <label>Contact Secondaire</label>
+                    <span id="view_contact_sec">--</span>
+                    <input type="text" id="edit_contact_sec" class="hidden" placeholder="Nom Prénom - Relation - 06 XX XX XX XX">
+                </div>
+
                 <div class="info-box full">
                     <label>Pathologies / Antécédents</label>
-                    <span>[À remplir]</span>
+                    <span id="view_patho">--</span>
+                    <textarea id="edit_patho" class="hidden"></textarea>
                 </div>
                 <div class="info-box full">
                     <label>Allergies Connues</label>
-                    <span style="color: #F87171;">[À remplir ou RAS]</span>
+                    <span id="view_allergies" style="color: #F87171;">--</span>
+                    <textarea id="edit_allergies" class="hidden"></textarea>
                 </div>
+
                 <div class="info-box full">
-                    <label>Médecin Traitant</label>
-                    <span>[Dr. XXXX - 05 XX XX XX XX]</span>
+                    <label>Traitement en cours & Ordonnances</label>
+                    <span id="view_traitement">--</span>
+                    <textarea id="edit_traitement" class="hidden" placeholder="Détails du traitement..."></textarea>
+                    
+                    <div class="prescription-container">
+                        <div id="prescriptionList" class="prescription-list"></div>
+                        <input type="file" id="fileOrdonnance" accept="image/*,application/pdf" multiple class="hidden" onchange="handleFileUpload(event)">
+                        <button id="btnUploadDoc" class="btn btn-secondary hidden" onclick="document.getElementById('fileOrdonnance').click()" style="margin-top:4px;">
+                            <i class="fa-solid fa-paperclip"></i> Ajouter une ordonnance (Photo/PDF)
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -573,7 +637,25 @@
             enableDouleur: true, maxDouleur: 4
         };
 
+        const DEFAULT_PATIENT = {
+            nom: "",
+            dob: "",
+            sang: "",
+            secu: "",
+            had: "",
+            medecin: "",
+            aidant: "",
+            contact_sec: "",
+            patho: "",
+            allergies: "",
+            traitement: "",
+            documents: []
+        };
+
         let settings = { ...DEFAULT_SETTINGS };
+        let patientData = { ...DEFAULT_PATIENT };
+        let isPatientEditing = false;
+        let isSecuVisible = false;
 
         function loadSettings() {
             const saved = localStorage.getItem('homecare_settings');
@@ -585,6 +667,149 @@
                 }
             }
             applySettingsToForm();
+        }
+
+        function loadPatientData() {
+            const saved = localStorage.getItem('homecare_patient');
+            if (saved) {
+                try {
+                    patientData = { ...DEFAULT_PATIENT, ...JSON.parse(saved) };
+                } catch (e) {
+                    patientData = { ...DEFAULT_PATIENT };
+                }
+            }
+            renderPatientView();
+        }
+
+        function renderPatientView() {
+            document.getElementById('view_nom').innerText = patientData.nom || '[À remplir]';
+            document.getElementById('view_dob').innerText = patientData.dob ? new Date(patientData.dob).toLocaleDateString('fr-FR') : '[À remplir]';
+            document.getElementById('view_sang').innerText = patientData.sang || '[À remplir]';
+            
+            updateSecuDisplay();
+
+            document.getElementById('view_had').innerText = patientData.had ? new Date(patientData.had).toLocaleDateString('fr-FR') : '[Non précisé]';
+            document.getElementById('view_medecin').innerText = patientData.medecin || '[À remplir]';
+            document.getElementById('view_aidant').innerText = patientData.aidant || '[À remplir]';
+            document.getElementById('view_contact_sec').innerText = patientData.contact_sec || '[Non renseigné]';
+            document.getElementById('view_patho').innerText = patientData.patho || '[À remplir]';
+            document.getElementById('view_allergies').innerText = patientData.allergies || 'Aucune connue';
+            document.getElementById('view_traitement').innerText = patientData.traitement || '[À remplir]';
+
+            renderPrescriptions();
+        }
+
+        function updateSecuDisplay() {
+            const viewSecu = document.getElementById('view_secu');
+            if (!patientData.secu) {
+                viewSecu.innerText = '[À remplir]';
+            } else if (isSecuVisible) {
+                viewSecu.innerText = patientData.secu;
+            } else {
+                viewSecu.innerText = '•••••••••••••••';
+            }
+        }
+
+        function toggleSecuVisibility() {
+            isSecuVisible = !isSecuVisible;
+            const icon = document.getElementById('secuEyeIcon');
+            if (isSecuVisible) {
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                icon.className = 'fa-solid fa-eye';
+            }
+            updateSecuDisplay();
+        }
+
+        function toggleEditPatient() {
+            isPatientEditing = !isPatientEditing;
+            const btn = document.getElementById('btnEditPatient');
+            const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
+            const uploadBtn = document.getElementById('btnUploadDoc');
+
+            if (isPatientEditing) {
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer';
+                btn.className = 'btn btn-primary';
+                uploadBtn.classList.remove('hidden');
+
+                fields.forEach(f => {
+                    document.getElementById(`view_${f}`).classList.add('hidden');
+                    const input = document.getElementById(`edit_${f}`);
+                    input.classList.remove('hidden');
+                    input.value = patientData[f] || '';
+                });
+            } else {
+                fields.forEach(f => {
+                    const input = document.getElementById(`edit_${f}`);
+                    patientData[f] = input.value;
+                    input.classList.add('hidden');
+                    document.getElementById(`view_${f}`).classList.remove('hidden');
+                });
+
+                localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+                btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Modifier';
+                btn.className = 'btn btn-secondary';
+                uploadBtn.classList.add('hidden');
+
+                renderPatientView();
+            }
+        }
+
+        function handleFileUpload(evt) {
+            const files = evt.target.files;
+            if (!files.length) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    patientData.documents.push({
+                        name: file.name,
+                        type: file.type,
+                        data: e.target.result
+                    });
+                    localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+                    renderPrescriptions();
+                };
+                reader.readAsDataURL(file);
+            });
+            evt.target.value = '';
+        }
+
+        function removeDocument(index) {
+            patientData.documents.splice(index, 1);
+            localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+            renderPrescriptions();
+        }
+
+        function renderPrescriptions() {
+            const list = document.getElementById('prescriptionList');
+            list.innerHTML = '';
+            
+            if (!patientData.documents || !patientData.documents.length) {
+                return;
+            }
+
+            patientData.documents.forEach((doc, idx) => {
+                const item = document.createElement('div');
+                item.className = 'prescription-item';
+
+                const iconClass = doc.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-image';
+                const link = document.createElement('a');
+                link.href = doc.data;
+                link.target = '_blank';
+                link.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${doc.name}`;
+
+                item.appendChild(link);
+
+                if (isPatientEditing) {
+                    const removeBtn = document.createElement('i');
+                    removeBtn.className = 'fa-solid fa-trash remove-file';
+                    removeBtn.onclick = () => removeDocument(idx);
+                    item.appendChild(removeBtn);
+                }
+
+                list.appendChild(item);
+            });
         }
 
         function applySettingsToForm() {
@@ -633,7 +858,6 @@
             modal.classList.toggle('hidden');
         }
 
-        // Plugin d'affichage des lignes de seuil horizontales en pointillés
         const thresholdLinesPlugin = {
             id: 'thresholdLines',
             afterDraw(chart, args, options) {
@@ -994,7 +1218,6 @@
                 if (unitUrineElem) unitUrineElem.innerText = 'ml / jour (moy)';
             }
 
-            // Statuts et Badges dynamiques
             updateMetaBadge('badgeSpo2', 'subtextSpo2', avgSpo2, settings.minSpo2, settings.maxSpo2);
             updateMetaBadge('badgePulse', 'subtextPulse', avgPulse, settings.minPulse, settings.maxPulse);
             updateMetaBadge('badgeResp', 'subtextResp', avgResp, settings.minResp, settings.maxResp);
@@ -1002,7 +1225,6 @@
             updateMetaBadge('badgePoids', 'subtextPoids', avgPoids, null, settings.maxPoids, true, 'max');
             updateMetaBadge('badgeDouleur', 'subtextDouleur', avgDouleur, null, settings.maxDouleur, true, 'max');
 
-            // Mise à jour sous-texte et badge spécifique Tension (SYS + DIA)
             let sysText = settings.enableSys ? `SYS ${settings.minSys}-${settings.maxSys}` : '';
             let diaText = settings.enableDia ? `DIA ${settings.minDia}-${settings.maxDia}` : '';
             document.getElementById('subtextTension').innerText = [sysText, diaText].filter(Boolean).join(' | ');
@@ -1027,7 +1249,6 @@
                 }
             }
 
-            // Construction des lignes de seuil pour Chart.js avec leurs couleurs
             const linesSpo2 = settings.enableSpo2 ? [{ value: settings.minSpo2 }, { value: settings.maxSpo2 }] : [];
             const linesPulse = settings.enablePulse ? [{ value: settings.minPulse }, { value: settings.maxPulse }] : [];
             const linesResp = settings.enableResp ? [{ value: settings.minResp }, { value: settings.maxResp }] : [];
@@ -1035,7 +1256,6 @@
             const linesPoids = settings.enablePoids ? [{ value: settings.maxPoids, color: 'rgba(249, 115, 22, 0.7)' }] : [];
             const linesDouleur = settings.enableDouleur ? [{ value: settings.maxDouleur, color: 'rgba(249, 115, 22, 0.7)' }] : [];
             
-            // Lignes de seuils distinctes pour Tension SYS (Rose) et DIA (Bleu)
             const linesTension = [];
             if (settings.enableSys) {
                 linesTension.push({ value: settings.minSys, color: 'rgba(236, 72, 153, 0.6)' });
@@ -1046,13 +1266,11 @@
                 linesTension.push({ value: settings.maxDia, color: 'rgba(129, 140, 248, 0.6)' });
             }
 
-            // Graphiques
             createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds, linesSpo2);
             createTimeLineChart('chartPulse', pulsePoints, '#A855F7', 40, 140, 20, bounds, linesPulse);
             createTimeLineChart('chartPoids', poidsPoints, '#818CF8', 100, 150, 10, bounds, linesPoids);
             createTimeLineChart('chartResp', respPoints, '#A78BFA', 0, 40, 10, bounds, linesResp);
 
-            // Tension Artérielle
             if (chartInstances['chartTension']) chartInstances['chartTension'].destroy();
             
             const tensionTimeConfig = {
@@ -1125,8 +1343,8 @@
             return null;
         }
 
-        // Chargement initial des paramètres & parsing CSV
         loadSettings();
+        loadPatientData();
 
         Papa.parse(CSV_URL, {
             download: true,
