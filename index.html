@@ -229,8 +229,12 @@
             background: #151A28; border: 1px solid var(--border); border-radius: 6px;
             padding: 6px 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px;
         }
-        .prescription-item a { color: var(--primary); text-decoration: none; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .prescription-item a:hover { text-decoration: underline; }
+        .prescription-item button.file-link {
+            background: none; border: none; color: var(--primary); cursor: pointer;
+            font-size: 0.75rem; text-align: left; max-width: 180px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap; padding: 0;
+        }
+        .prescription-item button.file-link:hover { text-decoration: underline; }
         .prescription-item .remove-file { color: #F87171; cursor: pointer; }
 
         #loading {
@@ -593,6 +597,12 @@
                     <span id="view_had_tulle">--</span>
                     <input type="text" id="edit_had_tulle" class="hidden" placeholder="05 XX XX XX XX">
                 </div>
+
+                <div class="info-box full">
+                    <label>SOS Oxygène (Prestataire)</label>
+                    <span id="view_sos_oxygene">--</span>
+                    <input type="text" id="edit_sos_oxygene" class="hidden" placeholder="Nom du contact - 0X XX XX XX XX">
+                </div>
                 
                 <div class="info-box full">
                     <label>Proche Aidant (Urgence)</label>
@@ -657,6 +667,7 @@
             medecin: "",
             infirmiere: "",
             had_tulle: "",
+            sos_oxygene: "",
             aidant: "",
             contact_sec: "",
             patho: "",
@@ -705,6 +716,7 @@
             document.getElementById('view_medecin').innerText = patientData.medecin || '[À remplir]';
             document.getElementById('view_infirmiere').innerText = patientData.infirmiere || '[À remplir]';
             document.getElementById('view_had_tulle').innerText = patientData.had_tulle || '[À remplir]';
+            document.getElementById('view_sos_oxygene').innerText = patientData.sos_oxygene || '[À remplir]';
             document.getElementById('view_aidant').innerText = patientData.aidant || '[À remplir]';
             document.getElementById('view_contact_sec').innerText = patientData.contact_sec || '[Non renseigné]';
             document.getElementById('view_patho').innerText = patientData.patho || '[À remplir]';
@@ -739,7 +751,7 @@
         function toggleEditPatient() {
             isPatientEditing = !isPatientEditing;
             const btn = document.getElementById('btnEditPatient');
-            const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'infirmiere', 'had_tulle', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
+            const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'infirmiere', 'had_tulle', 'sos_oxygene', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
             const uploadBtn = document.getElementById('btnUploadDoc');
 
             if (isPatientEditing) {
@@ -796,6 +808,27 @@
             renderPrescriptions();
         }
 
+        function openDocument(doc) {
+            try {
+                const parts = doc.data.split(';base64,');
+                const contentType = parts[0].split(':')[1] || doc.type;
+                const raw = window.atob(parts[1]);
+                const rawLength = raw.length;
+                const uInt8Array = new Uint8Array(rawLength);
+
+                for (let i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+
+                const blob = new Blob([uInt8Array], { type: contentType });
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+            } catch (e) {
+                console.error("Erreur lors de l'ouverture du document", e);
+                alert("Impossible d'ouvrir ce document.");
+            }
+        }
+
         function renderPrescriptions() {
             const list = document.getElementById('prescriptionList');
             list.innerHTML = '';
@@ -809,12 +842,13 @@
                 item.className = 'prescription-item';
 
                 const iconClass = doc.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-image';
-                const link = document.createElement('a');
-                link.href = doc.data;
-                link.target = '_blank';
-                link.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${doc.name}`;
+                const fileBtn = document.createElement('button');
+                fileBtn.className = 'file-link';
+                fileBtn.type = 'button';
+                fileBtn.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${doc.name}`;
+                fileBtn.onclick = () => openDocument(doc);
 
-                item.appendChild(link);
+                item.appendChild(fileBtn);
 
                 if (isPatientEditing) {
                     const removeBtn = document.createElement('i');
