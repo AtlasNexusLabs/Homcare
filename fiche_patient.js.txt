@@ -1,0 +1,169 @@
+const DEFAULT_PATIENT = {
+    nom: "", dob: "", sang: "", secu: "", had: "",
+    medecin: "", infirmiere: "", had_tulle: "", sos_oxygene: "",
+    aidant: "", contact_sec: "", patho: "", allergies: "",
+    traitement: "", documents: []
+};
+
+let patientData = { ...DEFAULT_PATIENT };
+let isPatientEditing = false;
+let isSecuVisible = false;
+
+function loadPatientData() {
+    const saved = localStorage.getItem('homecare_patient');
+    if (saved) {
+        try { patientData = { ...DEFAULT_PATIENT, ...JSON.parse(saved) }; } 
+        catch (e) { patientData = { ...DEFAULT_PATIENT }; }
+    }
+    renderPatientView();
+}
+
+function renderPatientView() {
+    document.getElementById('view_nom').innerText = patientData.nom || '[À remplir]';
+    document.getElementById('view_dob').innerText = patientData.dob ? new Date(patientData.dob).toLocaleDateString('fr-FR') : '[À remplir]';
+    document.getElementById('view_sang').innerText = patientData.sang || '[À remplir]';
+    
+    updateSecuDisplay();
+
+    document.getElementById('view_had').innerText = patientData.had ? new Date(patientData.had).toLocaleDateString('fr-FR') : '[Non précisé]';
+    document.getElementById('view_medecin').innerText = patientData.medecin || '[À remplir]';
+    document.getElementById('view_infirmiere').innerText = patientData.infirmiere || '[À remplir]';
+    document.getElementById('view_had_tulle').innerText = patientData.had_tulle || '[À remplir]';
+    document.getElementById('view_sos_oxygene').innerText = patientData.sos_oxygene || '[À remplir]';
+    document.getElementById('view_aidant').innerText = patientData.aidant || '[À remplir]';
+    document.getElementById('view_contact_sec').innerText = patientData.contact_sec || '[Non renseigné]';
+    document.getElementById('view_patho').innerText = patientData.patho || '[À remplir]';
+    document.getElementById('view_allergies').innerText = patientData.allergies || 'Aucune connue';
+    document.getElementById('view_traitement').innerText = patientData.traitement || '[À remplir]';
+
+    renderPrescriptions();
+}
+
+function updateSecuDisplay() {
+    const viewSecu = document.getElementById('view_secu');
+    if (!patientData.secu) {
+        viewSecu.innerText = '[À remplir]';
+    } else if (isSecuVisible) {
+        viewSecu.innerText = patientData.secu;
+    } else {
+        viewSecu.innerText = '•••••••••••••••';
+    }
+}
+
+function toggleSecuVisibility() {
+    isSecuVisible = !isSecuVisible;
+    const icon = document.getElementById('secuEyeIcon');
+    icon.className = isSecuVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    updateSecuDisplay();
+}
+
+function toggleEditPatient() {
+    isPatientEditing = !isPatientEditing;
+    const btn = document.getElementById('btnEditPatient');
+    const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'infirmiere', 'had_tulle', 'sos_oxygene', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
+    const uploadBtn = document.getElementById('btnUploadDoc');
+
+    if (isPatientEditing) {
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer';
+        btn.className = 'btn btn-primary';
+        uploadBtn.classList.remove('hidden');
+
+        fields.forEach(f => {
+            document.getElementById(`view_${f}`).classList.add('hidden');
+            const input = document.getElementById(`edit_${f}`);
+            input.classList.remove('hidden');
+            input.value = patientData[f] || '';
+        });
+    } else {
+        fields.forEach(f => {
+            const input = document.getElementById(`edit_${f}`);
+            patientData[f] = input.value;
+            input.classList.add('hidden');
+            document.getElementById(`view_${f}`).classList.remove('hidden');
+        });
+
+        localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Modifier';
+        btn.className = 'btn btn-secondary';
+        uploadBtn.classList.add('hidden');
+
+        renderPatientView();
+    }
+}
+
+function handleFileUpload(evt) {
+    const files = evt.target.files;
+    if (!files.length) return;
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            patientData.documents.push({ name: file.name, type: file.type, data: e.target.result });
+            localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+            renderPrescriptions();
+        };
+        reader.readAsDataURL(file);
+    });
+    evt.target.value = '';
+}
+
+function removeDocument(index) {
+    patientData.documents.splice(index, 1);
+    localStorage.setItem('homecare_patient', JSON.stringify(patientData));
+    renderPrescriptions();
+}
+
+function openDocument(doc) {
+    try {
+        const parts = doc.data.split(';base64,');
+        const contentType = parts[0].split(':')[1] || doc.type;
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+
+        const blob = new Blob([uInt8Array], { type: contentType });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+    } catch (e) {
+        console.error("Erreur lors de l'ouverture du document", e);
+        alert("Impossible d'ouvrir ce document.");
+    }
+}
+
+function renderPrescriptions() {
+    const list = document.getElementById('prescriptionList');
+    list.innerHTML = '';
+    if (!patientData.documents || !patientData.documents.length) return;
+
+    patientData.documents.forEach((doc, idx) => {
+        const item = document.createElement('div');
+        item.className = 'prescription-item';
+
+        const iconClass = doc.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-image';
+        const fileBtn = document.createElement('button');
+        fileBtn.className = 'file-link';
+        fileBtn.type = 'button';
+        fileBtn.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${doc.name}`;
+        fileBtn.onclick = () => openDocument(doc);
+
+        item.appendChild(fileBtn);
+
+        if (isPatientEditing) {
+            const removeBtn = document.createElement('i');
+            removeBtn.className = 'fa-solid fa-trash remove-file';
+            removeBtn.onclick = () => removeDocument(idx);
+            item.appendChild(removeBtn);
+        }
+
+        list.appendChild(item);
+    });
+}
+
+function togglePatientModal() {
+    const modal = document.getElementById('patientModal');
+    modal.classList.toggle('hidden');
+}
