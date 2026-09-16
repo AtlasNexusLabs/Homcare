@@ -582,6 +582,17 @@
                     <span id="view_medecin">--</span>
                     <input type="text" id="edit_medecin" class="hidden" placeholder="Dr. Nom - 05 XX XX XX XX">
                 </div>
+
+                <div class="info-box">
+                    <label>Infirmière</label>
+                    <span id="view_infirmiere">--</span>
+                    <input type="text" id="edit_infirmiere" class="hidden" placeholder="Nom - 06 XX XX XX XX">
+                </div>
+                <div class="info-box">
+                    <label>HAD Tulle</label>
+                    <span id="view_had_tulle">--</span>
+                    <input type="text" id="edit_had_tulle" class="hidden" placeholder="05 XX XX XX XX">
+                </div>
                 
                 <div class="info-box full">
                     <label>Proche Aidant (Urgence)</label>
@@ -644,6 +655,8 @@
             secu: "",
             had: "",
             medecin: "",
+            infirmiere: "",
+            had_tulle: "",
             aidant: "",
             contact_sec: "",
             patho: "",
@@ -690,6 +703,8 @@
 
             document.getElementById('view_had').innerText = patientData.had ? new Date(patientData.had).toLocaleDateString('fr-FR') : '[Non précisé]';
             document.getElementById('view_medecin').innerText = patientData.medecin || '[À remplir]';
+            document.getElementById('view_infirmiere').innerText = patientData.infirmiere || '[À remplir]';
+            document.getElementById('view_had_tulle').innerText = patientData.had_tulle || '[À remplir]';
             document.getElementById('view_aidant').innerText = patientData.aidant || '[À remplir]';
             document.getElementById('view_contact_sec').innerText = patientData.contact_sec || '[Non renseigné]';
             document.getElementById('view_patho').innerText = patientData.patho || '[À remplir]';
@@ -724,7 +739,7 @@
         function toggleEditPatient() {
             isPatientEditing = !isPatientEditing;
             const btn = document.getElementById('btnEditPatient');
-            const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
+            const fields = ['nom', 'dob', 'sang', 'secu', 'had', 'medecin', 'infirmiere', 'had_tulle', 'aidant', 'contact_sec', 'patho', 'allergies', 'traitement'];
             const uploadBtn = document.getElementById('btnUploadDoc');
 
             if (isPatientEditing) {
