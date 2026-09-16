@@ -117,7 +117,9 @@
             width: 32px; height: 32px; border-radius: 50%;
             background-color: var(--bg-card); border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+            cursor: pointer; transition: transform 0.2s, border-color 0.2s;
         }
+        .profile-avatar:hover { transform: scale(1.08); border-color: var(--primary); color: var(--text-main); }
 
         .view-section { display: flex; flex-direction: column; flex: 1; height: 100%; min-height: 0; }
         .hidden { display: none !important; }
@@ -187,6 +189,28 @@
         .btn-primary { background-color: var(--primary); color: #FFF; }
         .btn-primary:hover { opacity: 0.9; }
 
+        /* Modal Fiche Patient */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+        }
+        .modal-card {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; width: 520px; max-width: 90%; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 16px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .modal-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-main); }
+        .patient-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem; }
+        .info-box { background: #0D111D; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        .info-box label { font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .info-box span { font-weight: 600; color: var(--text-main); }
+        .info-box.full { grid-column: span 2; }
+
         #loading {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-main); display: flex; justify-content: center;
@@ -253,7 +277,7 @@
                     <div id="currentDate" class="date-text">--</div>
                     <div id="currentTime" class="time-text">--:--</div>
                 </div>
-                <div class="profile-avatar"><i class="fa-regular fa-user"></i></div>
+                <div class="profile-avatar" onclick="togglePatientModal()" title="Fiche Urgence Patient"><i class="fa-regular fa-user"></i></div>
             </div>
         </div>
 
@@ -421,12 +445,23 @@
 
                 <div class="setting-card">
                     <div class="setting-header">
-                        <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension Systolique</div>
+                        <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#EC4899;"></i> Tension SYS (Systolique)</div>
                         <label class="toggle-switch"><input type="checkbox" id="enableSys" checked><span class="slider"></span></label>
                     </div>
                     <div class="setting-inputs">
                         <div class="input-group"><label>Min (mmHg)</label><input type="number" id="minSys" value="90"></div>
                         <div class="input-group"><label>Max (mmHg)</label><input type="number" id="maxSys" value="140"></div>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-header">
+                        <div class="card-title"><i class="fa-solid fa-stethoscope" style="color:#818CF8;"></i> Tension DIA (Diastolique)</div>
+                        <label class="toggle-switch"><input type="checkbox" id="enableDia" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-inputs">
+                        <div class="input-group"><label>Min (mmHg)</label><input type="number" id="minDia" value="60"></div>
+                        <div class="input-group"><label>Max (mmHg)</label><input type="number" id="maxDia" value="90"></div>
                     </div>
                 </div>
 
@@ -480,6 +515,50 @@
         </div>
     </div>
 
+    <!-- Modal Fiche Urgence Patient -->
+    <div id="patientModal" class="modal-overlay hidden" onclick="if(event.target === this) togglePatientModal()">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fa-solid fa-id-card"></i> Fiche Médicale d'Urgence</div>
+                <button class="modal-close" onclick="togglePatientModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="patient-info-grid">
+                <div class="info-box">
+                    <label>Nom & Prénom</label>
+                    <span>[À remplir]</span>
+                </div>
+                <div class="info-box">
+                    <label>Date de Naissance</label>
+                    <span>[À remplir]</span>
+                </div>
+                <div class="info-box">
+                    <label>Groupe Sanguin</label>
+                    <span>[À remplir]</span>
+                </div>
+                <div class="info-box">
+                    <label>Sécurité Sociale</label>
+                    <span>[À remplir]</span>
+                </div>
+                <div class="info-box full">
+                    <label>Contact d'Urgence</label>
+                    <span>[Nom / Relation - 06 XX XX XX XX]</span>
+                </div>
+                <div class="info-box full">
+                    <label>Pathologies / Antécédents</label>
+                    <span>[À remplir]</span>
+                </div>
+                <div class="info-box full">
+                    <label>Allergies Connues</label>
+                    <span style="color: #F87171;">[À remplir ou RAS]</span>
+                </div>
+                <div class="info-box full">
+                    <label>Médecin Traitant</label>
+                    <span>[Dr. XXXX - 05 XX XX XX XX]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQXFBHQUxVsyt49ZiP1f2IsNoBsUxUCLDcllnVzF4rrMixHDtDVuCg-5vf5WbGtvpV6bpBep2O_2v7v/pub?gid=0&single=true&output=csv';
 
@@ -487,6 +566,7 @@
             enableResp: true, minResp: 10, maxResp: 40,
             enablePulse: true, minPulse: 50, maxPulse: 120,
             enableSys: true, minSys: 90, maxSys: 140,
+            enableDia: true, minDia: 60, maxDia: 90,
             enableUrine: true, minUrine: 1000, maxUrine: 2500,
             enablePoids: true, maxPoids: 125,
             enableSpo2: true, minSpo2: 90, maxSpo2: 100,
@@ -548,6 +628,11 @@
             renderDashboard();
         }
 
+        function togglePatientModal() {
+            const modal = document.getElementById('patientModal');
+            modal.classList.toggle('hidden');
+        }
+
         // Plugin d'affichage des lignes de seuil horizontales en pointillés
         const thresholdLinesPlugin = {
             id: 'thresholdLines',
@@ -562,7 +647,7 @@
                     ctx.setLineDash(line.dash || [4, 4]);
                     ctx.moveTo(left, yPos);
                     ctx.lineTo(right, yPos);
-                    ctx.strokeStyle = line.color || 'rgba(255, 255, 255, 0.2)';
+                    ctx.strokeStyle = line.color || 'rgba(56, 189, 248, 0.45)';
                     ctx.lineWidth = line.width || 1;
                     ctx.stroke();
                 });
@@ -917,23 +1002,23 @@
             updateMetaBadge('badgePoids', 'subtextPoids', avgPoids, null, settings.maxPoids, true, 'max');
             updateMetaBadge('badgeDouleur', 'subtextDouleur', avgDouleur, null, settings.maxDouleur, true, 'max');
 
-            // Mise à jour sous-texte spécifique Tension
-            let rangeTensionText = '';
-            if (settings.enableSys) {
-                rangeTensionText = `Sys ${settings.minSys}-${settings.maxSys}`;
-            }
-            document.getElementById('subtextTension').innerText = rangeTensionText;
+            // Mise à jour sous-texte et badge spécifique Tension (SYS + DIA)
+            let sysText = settings.enableSys ? `SYS ${settings.minSys}-${settings.maxSys}` : '';
+            let diaText = settings.enableDia ? `DIA ${settings.minDia}-${settings.maxDia}` : '';
+            document.getElementById('subtextTension').innerText = [sysText, diaText].filter(Boolean).join(' | ');
 
             if (avgSys === '--' || avgSys === null || isNaN(avgSys)) {
                 document.getElementById('badgeTension').className = 'badge badge-normal';
                 document.getElementById('badgeTension').innerText = 'Pas de donnée';
             } else {
                 const valSysNum = parseFloat(avgSys);
-                let isSysNormal = true;
-                if (settings.enableSys) {
-                    if (valSysNum < settings.minSys || valSysNum > settings.maxSys) isSysNormal = false;
-                }
-                if (isSysNormal) {
+                const valDiaNum = parseFloat(avgDia);
+                let isTensionNormal = true;
+                
+                if (settings.enableSys && (valSysNum < settings.minSys || valSysNum > settings.maxSys)) isTensionNormal = false;
+                if (settings.enableDia && (valDiaNum < settings.minDia || valDiaNum > settings.maxDia)) isTensionNormal = false;
+
+                if (isTensionNormal) {
                     document.getElementById('badgeTension').className = 'badge badge-normal';
                     document.getElementById('badgeTension').innerText = 'Normale';
                 } else {
@@ -942,14 +1027,24 @@
                 }
             }
 
-            // Construction des lignes de seuil pour Chart.js
+            // Construction des lignes de seuil pour Chart.js avec leurs couleurs
             const linesSpo2 = settings.enableSpo2 ? [{ value: settings.minSpo2 }, { value: settings.maxSpo2 }] : [];
             const linesPulse = settings.enablePulse ? [{ value: settings.minPulse }, { value: settings.maxPulse }] : [];
             const linesResp = settings.enableResp ? [{ value: settings.minResp }, { value: settings.maxResp }] : [];
             const linesUrine = settings.enableUrine ? [{ value: settings.minUrine }, { value: settings.maxUrine }] : [];
             const linesPoids = settings.enablePoids ? [{ value: settings.maxPoids, color: 'rgba(249, 115, 22, 0.7)' }] : [];
             const linesDouleur = settings.enableDouleur ? [{ value: settings.maxDouleur, color: 'rgba(249, 115, 22, 0.7)' }] : [];
-            const linesTension = settings.enableSys ? [{ value: settings.minSys }, { value: settings.maxSys }] : [];
+            
+            // Lignes de seuils distinctes pour Tension SYS (Rose) et DIA (Bleu)
+            const linesTension = [];
+            if (settings.enableSys) {
+                linesTension.push({ value: settings.minSys, color: 'rgba(236, 72, 153, 0.6)' });
+                linesTension.push({ value: settings.maxSys, color: 'rgba(236, 72, 153, 0.6)' });
+            }
+            if (settings.enableDia) {
+                linesTension.push({ value: settings.minDia, color: 'rgba(129, 140, 248, 0.6)' });
+                linesTension.push({ value: settings.maxDia, color: 'rgba(129, 140, 248, 0.6)' });
+            }
 
             // Graphiques
             createTimeLineChart('chartSpo2', spo2Points, '#38BDF8', 80, 100, 5, bounds, linesSpo2);
