@@ -412,11 +412,15 @@
         </div>
     </div>
 
+    <!-- Chargement des modules JS -->
+    <script src="fiche_patient.js"></script>
     <script src="params.js"></script>
     <script src="suivi_medical.js"></script>
+    <script src="script.js"></script>
     <script>
-        loadSettings();
-        loadPatientData();
+        // Initialisation si nécessaire
+        if (typeof loadSettings === 'function') loadSettings();
+        if (typeof loadPatientData === 'function') loadPatientData();
     </script>
 </body>
 </html>
