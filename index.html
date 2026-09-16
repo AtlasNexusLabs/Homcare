@@ -165,6 +165,7 @@
         .obs-item i { width: 14px; text-align: center; color: var(--text-muted); }
         .obs-item span.label { color: var(--text-muted); width: 85px; }
         .obs-item span.val { font-weight: 600; color: var(--text-main); }
+        .obs-item span.val.notified { color: #FB923C; }
         .obs-note { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
         .obs-note-title { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 2px; }
         .obs-note-text { font-size: 0.75rem; color: #D1D5DB; line-height: 1.2; }
@@ -417,27 +418,27 @@
                         <div class="obs-item">
                             <i class="fa-solid fa-pills"></i>
                             <span class="label">Médicaments</span>
-                            <span class="val">Aspirine 100mg - 1x/jour</span>
+                            <span class="val" id="obsMedicaments">--</span>
                         </div>
                         <div class="obs-item">
                             <i class="fa-solid fa-utensils"></i>
                             <span class="label">Alimentation</span>
-                            <span class="val">Normale</span>
+                            <span class="val" id="obsAlimentation">--</span>
                         </div>
                         <div class="obs-item">
                             <i class="fa-solid fa-bottle-water"></i>
                             <span class="label">Hydratation</span>
-                            <span class="val">1,5 L / jour</span>
+                            <span class="val" id="obsHydratation">--</span>
                         </div>
                         <div class="obs-item">
                             <i class="fa-solid fa-toilet"></i>
                             <span class="label">Selles</span>
-                            <span class="val">Ras</span>
+                            <span class="val" id="obsSelles">--</span>
                         </div>
                     </div>
                     <div class="obs-note">
                         <div class="obs-note-title">Dernière observation :</div>
-                        <div class="obs-note-text">Bonne journée, pas de douleur particulière.</div>
+                        <div class="obs-note-text" id="obsDerniereNote">--</div>
                     </div>
                 </div>
 
@@ -1199,8 +1200,69 @@
             }
         }
 
+        function updateObservationsBlock(dataList) {
+            if (!dataList || !dataList.length) return;
+
+            // Récupère la toute dernière ligne enregistrée (la plus récente)
+            const latest = dataList[dataList.length - 1];
+
+            // 1. Médicaments
+            const elemMed = document.getElementById('obsMedicaments');
+            const valMed = (latest.Medicaments || '').trim();
+            if (!valMed || valMed.toUpperCase() === 'OK') {
+                elemMed.innerText = 'Traitement habituel';
+                elemMed.classList.remove('notified');
+            } else {
+                elemMed.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>${valMed}`;
+                elemMed.classList.add('notified');
+            }
+
+            // 2. Alimentation
+            const elemAli = document.getElementById('obsAlimentation');
+            const valAli = (latest.Alimentation || '').trim();
+            if (!valAli || valAli.toUpperCase() === 'OK') {
+                elemAli.innerText = 'Normale';
+                elemAli.classList.remove('notified');
+            } else {
+                elemAli.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>${valAli}`;
+                elemAli.classList.add('notified');
+            }
+
+            // 3. Hydratation
+            const elemHyd = document.getElementById('obsHydratation');
+            const valHyd = (latest.Hydratation || '').trim();
+            if (!valHyd || valHyd.toUpperCase() === 'OK') {
+                elemHyd.innerText = '1,5 L / jour';
+                elemHyd.classList.remove('notified');
+            } else {
+                elemHyd.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>${valHyd}`;
+                elemHyd.classList.add('notified');
+            }
+
+            // 4. Selles
+            const elemSel = document.getElementById('obsSelles');
+            const valSel = (latest.Selles || '').trim();
+            if (!valSel || valSel.toUpperCase() === 'RAS') {
+                elemSel.innerText = 'RAS';
+            } else {
+                elemSel.innerText = valSel.toUpperCase();
+            }
+
+            // 5. Dernière observation
+            const elemObs = document.getElementById('obsDerniereNote');
+            const valObs = (latest.Observations || '').trim();
+            if (!valObs || valObs.toUpperCase() === 'RAS') {
+                elemObs.innerText = 'Bonne journée, rien à signaler.';
+            } else {
+                elemObs.innerText = valObs;
+            }
+        }
+
         function renderDashboard() {
             if (!rawMedicalData.length) return;
+
+            // Mise à jour du bloc d'observations dynamiques
+            updateObservationsBlock(rawMedicalData);
 
             const bounds = getTimeBounds(currentPeriod);
             const filteredData = rawMedicalData.filter(r => r.timestamp && r.timestamp >= bounds.min && r.timestamp <= bounds.max);
@@ -1422,6 +1484,13 @@
                     const douleurRaw = findHeaderValue(r, ['Douleur', 'DOULEUR', 'Pain']);
                     const respRaw = findHeaderValue(r, ['Fréquence Respiratoire', 'Fréquence respiratoire', 'Respiration', 'Resp', 'RESP']);
 
+                    // Extraction des colonnes texte/observations
+                    const medicamentsRaw = findHeaderValue(r, ['Médicaments', 'Medicaments', 'Médicament', 'Medicament']);
+                    const alimentationRaw = findHeaderValue(r, ['Alimentation', 'Repas']);
+                    const hydratationRaw = findHeaderValue(r, ['Hydratation', 'Boisson']);
+                    const sellesRaw = findHeaderValue(r, ['Selles', 'Selle']);
+                    const obsRaw = findHeaderValue(r, ['Observations', 'Observation', 'Notes', 'Remarques']);
+
                     return {
                         timestamp: ts,
                         Oxygène: parseFloat(oxygeneRaw) || null,
@@ -1431,7 +1500,12 @@
                         Douleur: parseFloat(douleurRaw) || null,
                         Resp: parseFloat(respRaw) || null,
                         Sys: sysVal,
-                        Dia: diaVal
+                        Dia: diaVal,
+                        Medicaments: medicamentsRaw || '',
+                        Alimentation: alimentationRaw || '',
+                        Hydratation: hydratationRaw || '',
+                        Selles: sellesRaw || '',
+                        Observations: obsRaw || ''
                     };
                 }).filter(r => r.timestamp !== null)
                   .sort((a, b) => a.timestamp - b.timestamp);
