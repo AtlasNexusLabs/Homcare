@@ -227,5 +227,54 @@ input:checked + .slider:before { transform: translateX(16px); }
 #loading {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: var(--bg-main); display: flex; justify-content: center;
-    align-items: center; font-size: 1.2rem; z-index: 1000;
+    align-items: center; font-size: 1.2rem; z-index: 1000;   
+}
+
+/* --- Correctif Responsive Mobile --- */
+@media (max-width: 768px) {
+    /* Passera la disposition globale en colonne */
+    body, .app-container {
+        flex-direction: column !important;
+    }
+
+    /* La sidebar passe en haut et s'adapte */
+    .sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: auto !important;
+        position: relative !important;
+        padding: 10px 15px !important;
+    }
+
+    /* Masque la description sous le titre dans la sidebar */
+    .sidebar .logo-subtitle {
+        display: none !important;
+    }
+
+    /* Le menu de navigation passe en défilement horizontal compact */
+    .sidebar nav {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        gap: 8px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .sidebar nav a, .sidebar nav button {
+        white-space: nowrap !important;
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Le contenu principal prend 100% de la largeur */
+    .main-content, .content {
+        width: 100% !important;
+        padding: 10px !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Les grilles de cartes/graphiques passent sur 1 seule colonne */
+    .grid, .dashboard-grid, .conso-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
