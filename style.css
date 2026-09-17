@@ -230,8 +230,33 @@ input:checked + .slider:before { transform: translateX(16px); }
     align-items: center; font-size: 1.2rem; z-index: 1000;   
 }
 
+
+/* telephone
+
+/* --- Style global du bouton Burger mobile --- */
+.menu-toggle-btn {
+    display: none;
+    position: fixed !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 9999 !important;
+    background: #1E2435 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+}
+
 @media (max-width: 768px) {
-    /* 1. Autoriser le défilement vertical sur écran mobile */
+    /* 1. Rendre le bouton visible sur mobile */
+    .menu-toggle-btn {
+        display: block !important;
+    }
+
+    /* 2. Autoriser le défilement vertical sur écran mobile */
     body {
         height: auto !important;
         min-height: 100vh !important;
@@ -248,29 +273,24 @@ input:checked + .slider:before { transform: translateX(16px); }
         width: 100% !important;
     }
 
-    /* 2. Bouton Burger */
-    .menu-toggle-btn {
-        display: block !important;
-    }
-
-    /* 3. Sidebar coulissante */
+    /* 3. Sidebar coulissante par-dessus le contenu */
     .sidebar {
         position: fixed !important;
-        top: 0;
-        left: -280px;
+        top: 0 !important;
+        left: -280px !important;
         width: 260px !important;
         height: 100vh !important;
-        z-index: 1000;
-        transition: left 0.3s ease;
-        padding-top: 50px !important;
-        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+        z-index: 10000 !important;
+        transition: left 0.3s ease !important;
+        padding-top: 60px !important;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5) !important;
     }
 
     .sidebar.open {
         left: 0 !important;
     }
 
-    /* 4. En-tête : Titre à gauche, bloc heure/profil (violet) en haut à droite */
+    /* 4. En-tête : Titre + Filtres à gauche, bloc heure/profil (violet) en haut à droite */
     .header {
         display: flex !important;
         flex-direction: row !important;
@@ -278,6 +298,7 @@ input:checked + .slider:before { transform: translateX(16px); }
         align-items: flex-start !important;
         width: 100% !important;
         margin-bottom: 16px !important;
+        padding-left: 45px !important; /* Laisse l'espace pour le bouton burger en haut à gauche */
     }
 
     .header-right {
