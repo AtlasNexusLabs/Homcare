@@ -230,9 +230,8 @@ input:checked + .slider:before { transform: translateX(16px); }
     align-items: center; font-size: 1.2rem; z-index: 1000;   
 }
 
-/* --- Correctif Responsive Mobile Final --- */
+/* --- Correctif Responsive Mobile Ajusté --- */
 
-/* 1. Style du bouton Burger (plus petit, neutre et discret) */
 .menu-toggle-btn {
     display: none;
     position: fixed;
@@ -254,7 +253,6 @@ input:checked + .slider:before { transform: translateX(16px); }
         display: block !important;
     }
 
-    /* 2. Sidebar coulissante sans chevauchement avec le bouton */
     .sidebar {
         position: fixed !important;
         top: 0;
@@ -263,7 +261,7 @@ input:checked + .slider:before { transform: translateX(16px); }
         height: 100vh !important;
         z-index: 1000;
         transition: left 0.3s ease;
-        padding-top: 50px !important; /* Libère l'espace sous le bouton X */
+        padding-top: 50px !important;
         box-shadow: 4px 0 15px rgba(0,0,0,0.5);
     }
 
@@ -271,34 +269,40 @@ input:checked + .slider:before { transform: translateX(16px); }
         left: 0 !important;
     }
 
-    /* Décalage du contenu pour ne pas butter contre le burger */
     .main-content, .content {
-        padding-top: 55px !important;
+        padding-top: 50px !important;
         padding-left: 12px !important;
         padding-right: 12px !important;
         width: 100% !important;
         overflow-x: hidden !important;
     }
 
-    /* 3. Réorganisation propre du Header (Titre, Filtres, Cloche/Heure) */
+    /* Placer Cloche/Heure/Profil en haut à droite, alignés avec le burger */
+    .user-profile, .header-right, .status-bar {
+        position: fixed !important;
+        top: 10px !important;
+        right: 12px !important;
+        z-index: 999;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        background: rgba(15, 23, 42, 0.85);
+        padding: 4px 10px !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+    }
+
+    /* Organisation propre sous la barre fixe */
     .header, .page-header, .top-bar {
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 12px !important;
         width: 100% !important;
-        height: auto !important;
+        margin-top: 10px !important;
     }
 
-    /* Zone d'en-tête : Titre et Infos utilisateur */
-    .header-info, .title-section {
-        width: 100% !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-
-    /* Le filtre temporel (Aujourd'hui, 7j, etc.) défile horizontalement proprement */
     .date-filter, .time-filter, .filter-buttons {
         width: 100% !important;
         display: flex !important;
@@ -308,7 +312,22 @@ input:checked + .slider:before { transform: translateX(16px); }
         gap: 6px !important;
     }
 
-    /* 4. Correctif des Toggles/Switches dans les paramètres */
+    /* FIX DES GRAPHIQUES : Rétablissement de la hauteur automatique et espacement */
+    .dashboard-grid, .grid, .charts-container {
+        display: block !important; /* Sort du flexbox qui écrasait la hauteur */
+        width: 100% !important;
+    }
+
+    .card, .chart-card {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 280px !important; /* Redonne la hauteur nécessaire aux graphiques */
+        margin-bottom: 16px !important; /* Espacement net entre chaque carte */
+        position: relative !important;
+    }
+
+    /* Correctif des Toggles/Switches Paramètres */
     .switch, .toggle-switch {
         position: relative !important;
         display: inline-block !important;
@@ -349,13 +368,6 @@ input:checked + .slider:before { transform: translateX(16px); }
     }
 
     input:checked + .slider:before, input:checked + .toggle-slider:before {
-        transform: translateX(22px) !important; /* Empêche le rond blanc de sortir */
-    }
-
-    /* Cartes des graphiques sur 1 colonne */
-    .dashboard-grid, .grid {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 16px !important;
+        transform: translateX(22px) !important;
     }
 }
