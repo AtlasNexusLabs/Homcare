@@ -554,17 +554,3 @@ Papa.parse(CSV_URL, {
         if (loader) loader.style.display = 'none';
     }
 });
-
-// Gestion de l'ouverture / fermeture du menu mobile (Burger)
-function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const btn = document.getElementById('menuToggleBtn');
-    
-    sidebar.classList.toggle('open');
-    
-    if (sidebar.classList.contains('open')) {
-        btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-bars"></i>';
-    }
-}
