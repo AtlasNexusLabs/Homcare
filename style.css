@@ -233,16 +233,3 @@ input:checked + .slider:before { transform: translateX(16px); }
 
 /* telephone */
 
-/* Ajustement de l'en-tête pour mobile */
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-    }
-
-    .header-right {
-        width: 100% !important;
-        justify-content: space-between !important;
-    }
-}
