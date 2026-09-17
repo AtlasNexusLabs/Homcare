@@ -230,70 +230,132 @@ input:checked + .slider:before { transform: translateX(16px); }
     align-items: center; font-size: 1.2rem; z-index: 1000;   
 }
 
-/* --- Menu Burger & Scroll Mobile --- */
+/* --- Correctif Responsive Mobile Final --- */
 
-/* Bouton Burger (Caché sur ordinateur, visible sur mobile) */
+/* 1. Style du bouton Burger (plus petit, neutre et discret) */
 .menu-toggle-btn {
     display: none;
     position: fixed;
     top: 12px;
     left: 12px;
     z-index: 1001;
-    background: #3B82F6;
-    color: white;
-    border: none;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 1.2rem;
+    background: rgba(30, 41, 59, 0.8);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 @media (max-width: 768px) {
-    /* Afficher le bouton burger */
     .menu-toggle-btn {
         display: block !important;
     }
 
-    /* La sidebar devient un tiroir coulissant */
+    /* 2. Sidebar coulissante sans chevauchement avec le bouton */
     .sidebar {
         position: fixed !important;
         top: 0;
-        left: -280px; /* Cachée sur la gauche */
+        left: -280px;
         width: 260px !important;
         height: 100vh !important;
         z-index: 1000;
         transition: left 0.3s ease;
+        padding-top: 50px !important; /* Libère l'espace sous le bouton X */
         box-shadow: 4px 0 15px rgba(0,0,0,0.5);
     }
 
-    /* Classe ajoutée en JS quand on clique sur le burger */
     .sidebar.open {
         left: 0 !important;
     }
 
-    /* Déblocage du Scroll principal */
-    .main-content, #viewSuivi, .content {
+    /* Décalage du contenu pour ne pas butter contre le burger */
+    .main-content, .content {
+        padding-top: 55px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
         width: 100% !important;
-        height: auto !important;
-        overflow-y: auto !important; /* Scroll vertical */
-        overflow-x: auto !important; /* Scroll horizontal si besoin */
-        padding-top: 60px !important; /* Espace pour le bouton burger */
+        overflow-x: hidden !important;
     }
 
-    /* Débloquer la grille pour qu'elle s'étale vers le bas sans se superposer */
+    /* 3. Réorganisation propre du Header (Titre, Filtres, Cloche/Heure) */
+    .header, .page-header, .top-bar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Zone d'en-tête : Titre et Infos utilisateur */
+    .header-info, .title-section {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Le filtre temporel (Aujourd'hui, 7j, etc.) défile horizontalement proprement */
+    .date-filter, .time-filter, .filter-buttons {
+        width: 100% !important;
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding-bottom: 4px !important;
+        gap: 6px !important;
+    }
+
+    /* 4. Correctif des Toggles/Switches dans les paramètres */
+    .switch, .toggle-switch {
+        position: relative !important;
+        display: inline-block !important;
+        width: 44px !important;
+        height: 22px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .switch input, .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider, .toggle-slider {
+        position: absolute !important;
+        cursor: pointer !important;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #334155;
+        transition: .3s;
+        border-radius: 22px !important;
+    }
+
+    .slider:before, .toggle-slider:before {
+        position: absolute !important;
+        content: "" !important;
+        height: 16px !important;
+        width: 16px !important;
+        left: 3px !important;
+        bottom: 3px !important;
+        background-color: white !important;
+        transition: .3s;
+        border-radius: 50% !important;
+    }
+
+    input:checked + .slider, input:checked + .toggle-slider {
+        background-color: #4F46E5 !important;
+    }
+
+    input:checked + .slider:before, input:checked + .toggle-slider:before {
+        transform: translateX(22px) !important; /* Empêche le rond blanc de sortir */
+    }
+
+    /* Cartes des graphiques sur 1 colonne */
     .dashboard-grid, .grid {
         display: flex !important;
         flex-direction: column !important;
-        height: auto !important;
-        min-height: auto !important;
         gap: 16px !important;
     }
-
-    /* Chaque carte prend une hauteur naturelle minimum */
-    .card, .chart-card {
-        min-height: 220px !important;
-        width: 100% !important;
-    }
-}
 }
