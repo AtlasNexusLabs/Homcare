@@ -230,51 +230,69 @@ input:checked + .slider:before { transform: translateX(16px); }
     align-items: center; font-size: 1.2rem; z-index: 1000;   
 }
 
-/* --- Correctif Responsive Mobile --- */
+/* --- Menu Burger & Scroll Mobile --- */
+
+/* Bouton Burger (Caché sur ordinateur, visible sur mobile) */
+.menu-toggle-btn {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001;
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
 @media (max-width: 768px) {
-    /* Passera la disposition globale en colonne */
-    body, .app-container {
-        flex-direction: column !important;
+    /* Afficher le bouton burger */
+    .menu-toggle-btn {
+        display: block !important;
     }
 
-    /* La sidebar passe en haut et s'adapte */
+    /* La sidebar devient un tiroir coulissant */
     .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -280px; /* Cachée sur la gauche */
+        width: 260px !important;
+        height: 100vh !important;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    }
+
+    /* Classe ajoutée en JS quand on clique sur le burger */
+    .sidebar.open {
+        left: 0 !important;
+    }
+
+    /* Déblocage du Scroll principal */
+    .main-content, #viewSuivi, .content {
         width: 100% !important;
-        min-width: 100% !important;
         height: auto !important;
-        position: relative !important;
-        padding: 10px 15px !important;
+        overflow-y: auto !important; /* Scroll vertical */
+        overflow-x: auto !important; /* Scroll horizontal si besoin */
+        padding-top: 60px !important; /* Espace pour le bouton burger */
     }
 
-    /* Masque la description sous le titre dans la sidebar */
-    .sidebar .logo-subtitle {
-        display: none !important;
-    }
-
-    /* Le menu de navigation passe en défilement horizontal compact */
-    .sidebar nav {
+    /* Débloquer la grille pour qu'elle s'étale vers le bas sans se superposer */
+    .dashboard-grid, .grid {
         display: flex !important;
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        gap: 8px !important;
-        padding-bottom: 5px !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: auto !important;
+        gap: 16px !important;
     }
 
-    .sidebar nav a, .sidebar nav button {
-        white-space: nowrap !important;
-        padding: 8px 12px !important;
-        font-size: 0.85rem !important;
-    }
-
-    /* Le contenu principal prend 100% de la largeur */
-    .main-content, .content {
+    /* Chaque carte prend une hauteur naturelle minimum */
+    .card, .chart-card {
+        min-height: 220px !important;
         width: 100% !important;
-        padding: 10px !important;
-        overflow-x: hidden !important;
-    }
-
-    /* Les grilles de cartes/graphiques passent sur 1 seule colonne */
-    .grid, .dashboard-grid, .conso-grid {
-        grid-template-columns: 1fr !important;
     }
 }
